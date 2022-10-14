@@ -8,6 +8,7 @@
 #include "Obj.h"
 #include "Camera.h"
 #include "Shader.h"
+#include "Light.h"
 
 /*
 * 光栅化空间
@@ -22,6 +23,7 @@ namespace Rasterization
     Screen m_screen;                                                        // 显示窗口
     Camera m_camera;                                                        // 相机
     Obj m_obj;                                                              // 用于加载 .obj 文件
+    Light m_light;                                                          // 光源
     Shader* m_pShader = nullptr;                                            // 着色器指针
     bool m_LisDown = false;                                                 // 标记鼠标左键是否按下
     bool m_RisDown = false;                                                 // 标记鼠标右键是否按下
@@ -43,6 +45,7 @@ namespace Rasterization
     );
     void loadObj(std::string objFilePath);                                                                                                  // 加载 .obj 文件
     void createCamera(Eigen::Vector3d eye, Eigen::Vector3d lookat, Eigen::Vector3d up, double fovy, double nearPlane, double farPlane);     // 创建相机
+    void createLight(Eigen::Vector3d ambient, Eigen::Vector3d direction, Eigen::Vector3d emission);                                         // 创建光源
 
     void show();
     void shutDown();
@@ -81,10 +84,15 @@ void Rasterization::createCamera(Eigen::Vector3d eye, Eigen::Vector3d lookat, Ei
     m_camera = Camera(eye, lookat, up, fovy, m_aspect, nearPlane, farPlane);
 }
 
+void Rasterization::createLight(Eigen::Vector3d ambient, Eigen::Vector3d direction, Eigen::Vector3d emission)
+{
+    m_light = Light(ambient, direction, emission);
+}
+
 void Rasterization::show()
 {
     m_pShader = new Shader(&m_obj, m_screen.width(), m_screen.height());
-    m_screen.show(m_pShader, &m_camera);
+    m_screen.show(m_pShader, &m_camera, &m_light);
 }
 
 void Rasterization::shutDown()

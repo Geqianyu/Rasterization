@@ -7,6 +7,7 @@
 
 #include "Shader.h"
 #include "Camera.h"
+#include "Light.h"
 
 /*
 * 屏幕类，最终图像会显示在屏幕上
@@ -39,12 +40,12 @@ public:
         HINSTANCE hPrevInstance,
         PSTR lpCmdLine,
         INT nCmdShow,
-        WNDPROC callBackFunction,                      // 回到函数
-        LPCWSTR windowName,                            // 窗口名字
-        INT windowWidth,                               // 窗口宽度
-        INT windowHeight                               // 窗口高度
-    );                                                 // 初始化窗口
-    void show(Shader* pShader, Camera* pCamera);       // 显示窗口
+        WNDPROC callBackFunction,                                     // 回到函数
+        LPCWSTR windowName,                                           // 窗口名字
+        INT windowWidth,                                              // 窗口宽度
+        INT windowHeight                                              // 窗口高度
+    );                                                                // 初始化窗口
+    void show(Shader* pShader, Camera* pCamera, Light* pLight);       // 显示窗口
     void setModelMatrix(Eigen::Matrix4d modelMatrix);
     int width();
     int height();

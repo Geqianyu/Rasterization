@@ -4,7 +4,6 @@
 #include <cmath>
 
 #include "Screen.h"
-#include "Camera.h"
 
 Screen::Screen()
 {
@@ -79,7 +78,7 @@ void Screen::initScreen(
     m_hdcMemory = CreateCompatibleDC(m_hdc);
 }
 
-void Screen::show(Shader* pShader, Camera* pCamera)
+void Screen::show(Shader* pShader, Camera* pCamera, Light* pLight)
 {
     // 显示窗口
     ShowWindow(m_hwnd, SW_SHOWNORMAL);
@@ -87,7 +86,7 @@ void Screen::show(Shader* pShader, Camera* pCamera)
     // 从消息队列中获取消息
     while (GetMessage(&m_message, NULL, 0, 0))
     {
-        BYTE* frameBuffer = pShader->shading(*pCamera, m_modelMatrix);
+        BYTE* frameBuffer = pShader->shading(*pCamera, *pLight, m_modelMatrix);
         draw(frameBuffer);
         // 将 虚拟键 消息 转为 字符 消息
         TranslateMessage(&m_message);

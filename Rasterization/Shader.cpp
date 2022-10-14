@@ -36,18 +36,23 @@ Shader::~Shader()
     }
 }
 
-BYTE* Shader::shading(Camera& camera, Eigen::Matrix4d modelMatrix)
+BYTE* Shader::shading(Camera& camera, Light& light, Eigen::Matrix4d modelMatrix)
 {
     std::fill(m_flag, m_flag + m_obj->m_meshs.size(), true);
     std::fill(m_zBuffer, m_zBuffer + m_width * m_height, -FLT_MAX);
     std::fill(m_frameBuffer, m_frameBuffer + 3 * m_width * m_height, 0X00);
     m_projectionMatrix = camera.projectionMatrix();
     m_viewMatrix = camera.viewMatrix();
+    m_cameraPosition = camera.position();
     m_modelMatrix = modelMatrix;
     Eigen::Matrix4d tempInverse = m_modelMatrix.inverse().transpose();
     m_inverseMatrix << tempInverse(0, 0), tempInverse(0, 1), tempInverse(0, 2)
         , tempInverse(1, 0), tempInverse(1, 1), tempInverse(1, 2)
         , tempInverse(2, 0), tempInverse(2, 1), tempInverse(2, 2);
+    m_lightAmbient = light.m_ambient;
+    m_lightDirection = light.m_direction;
+    m_lightDirection.normalize();
+    m_lightEmission = light.m_emission;
 
     // 顶点处理
     vertexShading();
@@ -164,15 +169,32 @@ void Shader::rasterizationAndFragmentShading()
                         {
                             Eigen::Vector3d fragmentNormal = firstRate * m_calculate_normals[m_obj->m_meshs[i].m_normalIndeices[0]] + secondRate * m_calculate_normals[m_obj->m_meshs[i].m_normalIndeices[1]] + thirdRate * m_calculate_normals[m_obj->m_meshs[i].m_normalIndeices[2]];
                             Eigen::Vector2d fragmentTexture = firstRate * m_obj->m_vts[m_obj->m_meshs[i].m_textureIndeices[0]] + secondRate * m_obj->m_vts[m_obj->m_meshs[i].m_textureIndeices[1]] + thirdRate * m_obj->m_vts[m_obj->m_meshs[i].m_textureIndeices[2]];
-                            Eigen::Vector3d Kd = m_obj->m_materials[m_obj->m_meshs[i].m_material].Kd(fragmentTexture);
                             m_zBuffer[j * m_width + k] = fragmentPosition.z();
-                            m_frameBuffer[3 * j * m_width + 3 * k] = (BYTE)(Kd.z() * 255);
-                            m_frameBuffer[3 * j * m_width + 3 * k + 1] = (BYTE)(Kd.y() * 255);
-                            m_frameBuffer[3 * j * m_width + 3 * k + 2] = (BYTE)(Kd.x() * 255);
+                            Eigen::Vector3d color = fragmentShader(fragmentPosition, fragmentNormal, fragmentTexture, m_obj->m_meshs[i].m_material);
+                            m_frameBuffer[3 * j * m_width + 3 * k] = (BYTE)(color.z() * 255);
+                            m_frameBuffer[3 * j * m_width + 3 * k + 1] = (BYTE)(color.y() * 255);
+                            m_frameBuffer[3 * j * m_width + 3 * k + 2] = (BYTE)(color.x() * 255);
                         }
                     }
                 }
             }
         }
     }
+}
+
+Eigen::Vector3d Shader::fragmentShader(Eigen::Vector3d fragmentPosition, Eigen::Vector3d fragmentNormal, Eigen::Vector2d fragmentTexture, std::string material)
+{
+    fragmentNormal.normalize();
+    Eigen::Vector3d Kd = m_obj->m_materials[material].Kd(fragmentTexture);
+    Eigen::Vector3d Ka = m_obj->m_materials[material].Ka(fragmentTexture);
+    Eigen::Vector3d ambientColor = Eigen::Vector3d(m_lightAmbient.x() * Ka.x(), m_lightAmbient.y() * Ka.y(), m_lightAmbient.z() * Ka.z());
+    double diffuse = max(0.0, fragmentNormal.dot(-m_lightDirection));
+    Eigen::Vector3d diffuseColor = diffuse * Eigen::Vector3d(m_lightEmission.x() * Kd.x(), m_lightEmission.y() * Kd.y(), m_lightEmission.z() * Kd.z());
+    Eigen::Vector3d halfVector = m_cameraPosition - fragmentPosition;
+    halfVector.normalize();
+    halfVector = halfVector - m_lightDirection;
+    halfVector.normalize();
+    double specular = std::pow(max(0.0, halfVector.dot(fragmentNormal)), m_obj->m_materials[material].m_Ns);
+    Eigen::Vector3d specularColor = specular * Eigen::Vector3d(m_lightEmission.x() * m_obj->m_materials[material].m_Ks.x(), m_lightEmission.y() * m_obj->m_materials[material].m_Ks.y(), m_lightEmission.z() * m_obj->m_materials[material].m_Ks.z());
+    return (ambientColor + diffuseColor + specularColor);
 }
