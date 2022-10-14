@@ -29,15 +29,13 @@ public:
     Camera(Eigen::Vector3d eye, Eigen::Vector3d lookat, Eigen::Vector3d up, double fovy, double aspect, double nearPlane, double farPlane);
     ~Camera();
     void setAspect(double aspect);
+    void changeFovy(double step);
     Eigen::Matrix4d viewMatrix();
     Eigen::Matrix4d projectionMatrix();
     Eigen::Vector3d position();
     Eigen::Vector3d XAxis();
     Eigen::Vector3d YAxis();
     Eigen::Vector3d ZAxis();
-    void moveCameraX(double step);
-    void moveCameraY(double step);
-    void moveCameraZ(double step);
 
 private:
     // 私有函数

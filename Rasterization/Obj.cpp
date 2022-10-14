@@ -18,6 +18,7 @@ Obj::Obj(const Obj& obj)
     m_meshs = obj.m_meshs;
     m_materials = obj.m_materials;
     m_relatingFaces = obj.m_relatingFaces;
+    m_center = obj.m_center;
 }
 
 Obj::Obj(std::string filePath)
@@ -41,6 +42,13 @@ void Obj::loadObj(std::string filePath)
         exit(-2);
     }
 
+    double top = -FLT_MAX;
+    double bottom = FLT_MAX;
+    double right = -FLT_MAX;
+    double left = FLT_MAX;
+    double front = -FLT_MAX;
+    double back = FLT_MAX;
+
     while (objFile >> str)
     {
         if (str == "v")
@@ -50,6 +58,30 @@ void Obj::loadObj(std::string filePath)
             {
                 objFile >> str;
                 tempV[i] = std::stod(str);
+            }
+            if (left > tempV[0])
+            {
+                left = tempV[0];
+            }
+            if (right < tempV[0])
+            {
+                right = tempV[0];
+            }
+            if (top < tempV[1])
+            {
+                top = tempV[1];
+            }
+            if (bottom > tempV[1])
+            {
+                bottom = tempV[1];
+            }
+            if (front < tempV[2])
+            {
+                front = tempV[2];
+            }
+            if (back > tempV[2])
+            {
+                back = tempV[2];
             }
             m_vs.push_back(Eigen::Vector3d(tempV[0], tempV[1], tempV[2]));
         }
@@ -119,6 +151,7 @@ void Obj::loadObj(std::string filePath)
             objFile >> currentMaterial;
         }
     }
+    m_center = Eigen::Vector3d((left + right) / 2.0, (top + bottom) / 2.0, (front + back) / 2.0);
 }
 
 void Obj::loadMtl(std::string filePath)
@@ -222,4 +255,34 @@ void Obj::loadMtl(std::string filePath)
             m_materials[currentMaterial] = Material();
         }
     }
+}
+
+Eigen::Matrix4d Obj::rotate(double angle, Eigen::Vector3d normal)
+{
+    Eigen::Matrix4d m1;
+    m1 << 1.0, 0.0, 0.0, -m_center.x()
+        , 0.0, 1.0, 0.0, -m_center.y()
+        , 0.0, 0.0, 1.0, -m_center.z()
+        , 0.0, 0.0, 0.0, 1.0;
+    Eigen::Matrix4d m2 = m1.inverse();
+    double cosAngle = std::cos(angle);
+    double sinAngle = std::sin(angle);
+    double CcosAngle = 1.0 - cosAngle;
+    Eigen::Matrix4d temp;
+    temp << cosAngle + CcosAngle * normal.x() * normal.x(), CcosAngle* normal.x()* normal.y() - sinAngle * normal.z(), CcosAngle* normal.x()* normal.z() + sinAngle * normal.y(), 0.0
+        , CcosAngle* normal.x()* normal.y() + sinAngle * normal.z(), cosAngle + CcosAngle * normal.y() * normal.y(), CcosAngle* normal.y()* normal.z() - sinAngle * normal.x(), 0.0
+        , CcosAngle* normal.z()* normal.x() - sinAngle * normal.y(), CcosAngle* normal.y()* normal.z() + sinAngle * normal.x(), cosAngle + CcosAngle * normal.z() * normal.z(), 0.0
+        , 0.0, 0.0, 0.0, 1.0;
+    Eigen::Matrix4d result = m2 * temp * m1;
+    return result;
+}
+
+Eigen::Matrix4d Obj::translate(double step, Eigen::Vector3d direction)
+{
+    Eigen::Matrix4d result;
+    result << 1.0, 0.0, 0.0, step* direction.x()
+        , 0.0, 1.0, 0.0, step* direction.y()
+        , 0.0, 0.0, 1.0, step* direction.z()
+        , 0.0, 0.0, 0.0, 1.0;
+    return result;
 }

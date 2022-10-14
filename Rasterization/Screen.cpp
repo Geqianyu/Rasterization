@@ -79,15 +79,16 @@ void Screen::initScreen(
     m_hdcMemory = CreateCompatibleDC(m_hdc);
 }
 
-void Screen::show(BYTE* frameBuffer)
+void Screen::show(Shader* pShader, Camera* pCamera)
 {
     // 显示窗口
     ShowWindow(m_hwnd, SW_SHOWNORMAL);
-    draw(frameBuffer);
 
     // 从消息队列中获取消息
     while (GetMessage(&m_message, NULL, 0, 0))
     {
+        BYTE* frameBuffer = pShader->shading(*pCamera, m_modelMatrix);
+        draw(frameBuffer);
         // 将 虚拟键 消息 转为 字符 消息
         TranslateMessage(&m_message);
 
@@ -116,6 +117,11 @@ void Screen::draw(BYTE* frameBuffer)
     BitBlt(m_hdc, 0, 0, m_width, m_height, m_hdcMemory, 0, 0, SRCCOPY);
     DeleteObject(hBmpMemory);
     DeleteObject(hPrevBmp);
+}
+
+void Screen::setModelMatrix(Eigen::Matrix4d modelMatrix)
+{
+    m_modelMatrix = modelMatrix;
 }
 
 int Screen::width()

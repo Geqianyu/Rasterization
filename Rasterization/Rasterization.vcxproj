@@ -158,6 +158,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Obj.h" />
     <ClInclude Include="Rasterization.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />

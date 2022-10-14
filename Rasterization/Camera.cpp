@@ -53,6 +53,13 @@ void Camera::setAspect(double aspect)
     generateProjectionMatrix();
 }
 
+void Camera::changeFovy(double step)
+{
+    m_fovy = m_fovy + step * PI / 180.0;
+    generateViewMatrix();
+    generateProjectionMatrix();
+}
+
 Eigen::Matrix4d Camera::viewMatrix()
 {
     return m_viewMatrix;
@@ -78,21 +85,6 @@ Eigen::Vector3d Camera::ZAxis()
     return m_z;
 }
 
-void Camera::moveCameraX(double step)
-{
-    m_position = m_position + step * m_x;
-}
-
-void Camera::moveCameraY(double step)
-{
-    m_position = m_position + step * m_y;
-}
-
-void Camera::moveCameraZ(double step)
-{
-    m_position = m_position - step * m_z;
-}
-
 Eigen::Vector3d Camera::position()
 {
     return m_position;
@@ -112,6 +104,7 @@ void Camera::generateViewMatrix()
         , 0.0, 0.0, 0.0, 1.0;
     m_viewMatrix = m1 * m2;
 }
+
 void Camera::generateProjectionMatrix()
 {
     double tanHalfFovy = std::tan(m_fovy / 2.0);

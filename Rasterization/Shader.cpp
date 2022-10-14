@@ -150,7 +150,7 @@ void Shader::rasterizationAndFragmentShading()
                     Eigen::Vector3d ABcrossAP = AB.cross(AP);
                     Eigen::Vector3d BCcrossBP = BC.cross(BP);
                     Eigen::Vector3d CAcrossCP = CA.cross(CP);
-                    if (ABcrossAP.z() > 0.0f && BCcrossBP.z() > 0.0f && CAcrossCP.z() > 0.0f)
+                    if (ABcrossAP.z() * BCcrossBP.z() > 0.0f && ABcrossAP.z() * CAcrossCP.z() > 0.0f && BCcrossBP.z() * CAcrossCP.z() > 0.0f)
                     {
                         double alpha = ABcrossAP.norm();
                         double beta = BCcrossBP.norm();

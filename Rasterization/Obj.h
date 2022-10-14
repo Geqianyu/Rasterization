@@ -23,6 +23,7 @@ public:
     std::vector<Mesh> m_meshs;                                // 保存三角形的索引
     std::map<std::string, Material> m_materials;              // 材质
     std::map<int, std::vector<int>> m_relatingFaces;          // 保存与某一顶点相关的三角形
+    Eigen::Vector3d m_center;                                 // 模型的中心
 
 public:
     // 公有函数
@@ -32,6 +33,8 @@ public:
     ~Obj();
 
     void loadObj(std::string filePath);
+    Eigen::Matrix4d rotate(double angle, Eigen::Vector3d normal);
+    Eigen::Matrix4d translate(double step, Eigen::Vector3d direction);
 
 private:
     // 私有函数
