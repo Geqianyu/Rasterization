@@ -1,0 +1,55 @@
+newmtl Cloth
+	Ns 9.9948
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.0000 0.0000 0.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0200 0.0200 0.0200
+	Ke 0.0000 0.0000 0.0000
+	map_Ka chr_tails_cloth_abd.png
+	map_Kd chr_tails_cloth_abd.png
+
+newmtl Body
+	Ns 9.9948
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.0000 0.0000 0.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0200 0.0200 0.0200
+	Ke 0.0000 0.0000 0.0000
+	map_Ka chr_tails_body_abd.png
+	map_Kd chr_tails_body_abd.png
+
+newmtl EyeL
+	Ns 9.9948
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.0000 0.0000 0.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0200 0.0200 0.0200
+	Ke 0.0000 0.0000 0.0000
+	map_Ka Tails_eyes.png
+	map_Kd Tails_eyes.png
+
+newmtl EyeR
+	Ns 9.9948
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.0000 0.0000 0.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0200 0.0200 0.0200
+	Ke 0.0000 0.0000 0.0000
+	map_Ka Tails_eyes.png
+	map_Kd Tails_eyes.png
