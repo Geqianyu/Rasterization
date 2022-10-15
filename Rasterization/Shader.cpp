@@ -103,24 +103,26 @@ void Shader::trianglesShading()
         }
     }
 
-    // int trianglesSize = m_obj->m_meshs.size();
-    // #pragma omp parallel for
-    // for (int i = 0; i < trianglesSize; i++)
-    // {
-    //     if (m_flag[i])
-    //     {
-    //         Eigen::Vector3d firstPoint = m_calculate_vertices[m_obj->m_meshs[i].m_vertexIndeices[0]];
-    //         Eigen::Vector3d secondPoint = m_calculate_vertices[m_obj->m_meshs[i].m_vertexIndeices[1]];
-    //         Eigen::Vector3d thirdPoint = m_calculate_vertices[m_obj->m_meshs[i].m_vertexIndeices[2]];
-    //         Eigen::Vector3d firstEdge = secondPoint - firstPoint;
-    //         Eigen::Vector3d secondEdge = thirdPoint - firstPoint;
-    //         Eigen::Vector3d r = firstEdge.cross(secondEdge);
-    //         if (r.z() < 0.0)
-    //         {
-    //             m_flag[i] = false;
-    //         }
-    //     }
-    // }
+    // 背面剔除
+    int trianglesSize = m_obj->m_meshs.size();
+#pragma omp parallel for
+    for (int i = 0; i < trianglesSize; i++)
+    {
+        if (m_flag[i])
+        {
+            Eigen::Vector3d firstPoint = m_calculate_vertices[m_obj->m_meshs[i].m_vertexIndeices[0]];
+            Eigen::Vector3d secondPoint = m_calculate_vertices[m_obj->m_meshs[i].m_vertexIndeices[1]];
+            Eigen::Vector3d thirdPoint = m_calculate_vertices[m_obj->m_meshs[i].m_vertexIndeices[2]];
+            Eigen::Vector3d d = m_cameraPosition - firstPoint;
+            Eigen::Vector3d firstEdge = secondPoint - firstPoint;
+            Eigen::Vector3d secondEdge = thirdPoint - firstPoint;
+            Eigen::Vector3d r = firstEdge.cross(secondEdge);
+            if (r.dot(d) < 0.0)
+            {
+                m_flag[i] = false;
+            }
+        }
+    }
 }
 
 void Shader::rasterizationAndFragmentShading()
