@@ -59,7 +59,7 @@ BYTE* Shader::shading(Camera& camera, Light& light)
 
 void Shader::vertex_shading()
 {
-    int vertices_size = m_obj->m_vs.size();
+    int vertices_size = static_cast<int>(m_obj->m_vs.size());
 #pragma omp parallel for
     for (int i = 0; i < vertices_size; i++)
     {
@@ -69,7 +69,7 @@ void Shader::vertex_shading()
 
 void Shader::triangles_shading()
 {
-    int vertices_size = m_obj->m_vs.size();
+    int vertices_size = static_cast<int>(m_obj->m_vs.size());
 #pragma omp parallel for
     for (int i = 0; i < vertices_size; i++)
     {
@@ -86,7 +86,7 @@ void Shader::triangles_shading()
     }
 
     // 背面剔除
-    int triangles_size = m_obj->m_meshs.size();
+    int triangles_size = static_cast<int>(m_obj->m_meshs.size());
 #pragma omp parallel for
     for (int i = 0; i < triangles_size; i++)
     {
@@ -109,7 +109,7 @@ void Shader::triangles_shading()
 
 void Shader::rasterization_and_fragment_shading()
 {
-    size_t triangles_size = m_obj->m_meshs.size();
+    size_t triangles_size = static_cast<int>(m_obj->m_meshs.size());
     for (size_t i = 0; i < triangles_size; i++)
     {
         if (m_flag[i])
