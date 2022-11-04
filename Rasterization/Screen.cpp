@@ -86,7 +86,7 @@ void Screen::show(Shader* pShader, Camera* pCamera, Light* pLight)
     // 从消息队列中获取消息
     while (GetMessage(&m_message, NULL, 0, 0))
     {
-        BYTE* frameBuffer = pShader->shading(*pCamera, *pLight, m_modelMatrix);
+        BYTE* frameBuffer = pShader->shading(*pCamera, *pLight);
         draw(frameBuffer);
         // 将 虚拟键 消息 转为 字符 消息
         TranslateMessage(&m_message);

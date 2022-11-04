@@ -36,7 +36,7 @@ Shader::~Shader()
     }
 }
 
-BYTE* Shader::shading(Camera& camera, Light& light, Eigen::Matrix4d modelMatrix)
+BYTE* Shader::shading(Camera& camera, Light& light)
 {
     std::fill(m_flag, m_flag + m_obj->m_meshs.size(), true);
     std::fill(m_zBuffer, m_zBuffer + m_width * m_height, -FLT_MAX);
@@ -44,11 +44,6 @@ BYTE* Shader::shading(Camera& camera, Light& light, Eigen::Matrix4d modelMatrix)
     m_projectionMatrix = camera.projectionMatrix();
     m_viewMatrix = camera.viewMatrix();
     m_cameraPosition = camera.position();
-    m_modelMatrix = modelMatrix;
-    Eigen::Matrix4d tempInverse = m_modelMatrix.inverse().transpose();
-    m_inverseMatrix << tempInverse(0, 0), tempInverse(0, 1), tempInverse(0, 2)
-        , tempInverse(1, 0), tempInverse(1, 1), tempInverse(1, 2)
-        , tempInverse(2, 0), tempInverse(2, 1), tempInverse(2, 2);
     m_lightAmbient = light.m_ambient;
     m_lightDirection = light.m_direction;
     m_lightDirection.normalize();
@@ -72,16 +67,16 @@ void Shader::vertexShading()
 #pragma omp parallel for
     for (int i = 0; i < verticesSize; i++)
     {
-        Eigen::Vector4d temp = m_modelMatrix * Eigen::Vector4d(m_obj->m_vs[i].x(), m_obj->m_vs[i].y(), m_obj->m_vs[i].z(), 1.0);
+        Eigen::Vector4d temp = Eigen::Vector4d(m_obj->m_vs[i].x(), m_obj->m_vs[i].y(), m_obj->m_vs[i].z(), 1.0);
         m_calculate_vertices[i] = Eigen::Vector3d(temp.x(), temp.y(), temp.z());
-        m_gl_vertices[i] = (m_projectionMatrix * m_viewMatrix * temp);
+        m_gl_vertices[i] = m_projectionMatrix * m_viewMatrix * temp;
     }
 
     int normalSize = m_obj->m_vns.size();
 #pragma omp parallel for
     for (int i = 0; i < normalSize; i++)
     {
-        m_calculate_normals[i] = m_inverseMatrix * m_obj->m_vns[i];
+        m_calculate_normals[i] = m_obj->m_vns[i];
     }
 }
 

@@ -4,6 +4,14 @@
 #include <Eigen/Dense>
 #include <Eigen/Core>
 
+enum class MOVE_DIRECTION
+{
+    FRONT = 0,
+    BACK,
+    LEFT,
+    RIGHT
+};
+
 /*
 * Camera类，保存相机相关信息
 */
@@ -30,12 +38,10 @@ public:
     ~Camera();
     void setAspect(double aspect);
     void changeFovy(double step);
+    void move(MOVE_DIRECTION _move_direction);
     Eigen::Matrix4d viewMatrix();
     Eigen::Matrix4d projectionMatrix();
     Eigen::Vector3d position();
-    Eigen::Vector3d XAxis();
-    Eigen::Vector3d YAxis();
-    Eigen::Vector3d ZAxis();
 
 private:
     // 私有函数

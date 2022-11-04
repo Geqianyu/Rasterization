@@ -60,6 +60,23 @@ void Camera::changeFovy(double step)
     generateProjectionMatrix();
 }
 
+void Camera::move(MOVE_DIRECTION _move_direction)
+{
+    switch (_move_direction)
+    {
+    case MOVE_DIRECTION::FRONT:
+        break;
+    case MOVE_DIRECTION::BACK:
+        break;
+    case MOVE_DIRECTION::LEFT:
+        break;
+    case MOVE_DIRECTION::RIGHT:
+        break;
+    default:
+        break;
+    }
+}
+
 Eigen::Matrix4d Camera::viewMatrix()
 {
     return m_viewMatrix;
@@ -68,21 +85,6 @@ Eigen::Matrix4d Camera::viewMatrix()
 Eigen::Matrix4d Camera::projectionMatrix()
 {
     return m_projectionMatrix;
-}
-
-Eigen::Vector3d Camera::XAxis()
-{
-    return m_x;
-}
-
-Eigen::Vector3d Camera::YAxis()
-{
-    return m_y;
-}
-
-Eigen::Vector3d Camera::ZAxis()
-{
-    return m_z;
 }
 
 Eigen::Vector3d Camera::position()

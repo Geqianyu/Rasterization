@@ -16,8 +16,6 @@ private:
     Obj* m_obj = nullptr;
     Eigen::Matrix4d m_projectionMatrix = Eigen::Matrix4d::Identity();
     Eigen::Matrix4d m_viewMatrix = Eigen::Matrix4d::Identity();
-    Eigen::Matrix4d m_modelMatrix = Eigen::Matrix4d::Identity();
-    Eigen::Matrix3d m_inverseMatrix = Eigen::Matrix3d::Identity();
     Eigen::Vector3d m_lightAmbient;
     Eigen::Vector3d m_lightDirection;
     Eigen::Vector3d m_lightEmission;
@@ -36,7 +34,7 @@ public:
     Shader(Obj* obj, int width, int height);
     ~Shader();
 
-    BYTE* shading(Camera& camera, Light& light, Eigen::Matrix4d modelMatrix = Eigen::Matrix4d::Identity());
+    BYTE* shading(Camera& camera, Light& light);
 
 private:
     // 私有函数
