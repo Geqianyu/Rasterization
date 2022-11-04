@@ -118,11 +118,6 @@ void Screen::draw(BYTE* frameBuffer)
     DeleteObject(hPrevBmp);
 }
 
-void Screen::setModelMatrix(Eigen::Matrix4d modelMatrix)
-{
-    m_modelMatrix = modelMatrix;
-}
-
 int Screen::width()
 {
     return m_width;

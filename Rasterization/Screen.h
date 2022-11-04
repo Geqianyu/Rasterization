@@ -1,9 +1,7 @@
-﻿#ifndef ____SCREEN_H____
-#define ____SCREEN_H____
+﻿#ifndef _GQY_SCREEN_H_
+#define _GQY_SCREEN_H_
 
 #include <windows.h>
-#include <Eigen/Dense>
-#include <Eigen/Core>
 
 #include "Shader.h"
 #include "Camera.h"
@@ -25,7 +23,6 @@ private:
     int m_height = 0;                                               // 窗口高度
     Shader* m_pShader = nullptr;                                    // 着色器指针
     Camera* m_pCamera = nullptr;                                    // 相机指针
-    Eigen::Matrix4d m_modelMatrix = Eigen::Matrix4d::Identity();    // 模型变换矩阵
 
 private:
     void draw(BYTE* frameBuffer);
@@ -46,10 +43,9 @@ public:
         INT windowHeight                                              // 窗口高度
     );                                                                // 初始化窗口
     void show(Shader* pShader, Camera* pCamera, Light* pLight);       // 显示窗口
-    void setModelMatrix(Eigen::Matrix4d modelMatrix);
     int width();
     int height();
 };
 
-#endif // !____SCREEN_H____
+#endif // !_GQY_SCREEN_H_
 

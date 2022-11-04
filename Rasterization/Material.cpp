@@ -14,23 +14,23 @@ Material::~Material()
 
 }
 
-void Material::loadKa(std::string filePath)
+void Material::loadKa(std::string _file_path)
 {
     m_map_Ka = true;
-    m_Ka_map.loadTexture(filePath);
+    m_Ka_map.load_texture(_file_path);
 }
 
-void Material::loadKd(std::string filePath)
+void Material::loadKd(std::string _file_path)
 {
     m_map_Kd = true;
-    m_Kd_map.loadTexture(filePath);
+    m_Kd_map.load_texture(_file_path);
 }
 
-Eigen::Vector3d Material::Ka(Eigen::Vector2d textureCoord)
+GQYMath::vec3 Material::Ka(GQYMath::vec2 _texture_coord)
 {
     if (m_map_Ka)
     {
-        return m_Ka_map.texture(textureCoord);
+        return m_Ka_map.texture(_texture_coord);
     }
     else
     {
@@ -38,11 +38,11 @@ Eigen::Vector3d Material::Ka(Eigen::Vector2d textureCoord)
     }
 }
 
-Eigen::Vector3d Material::Kd(Eigen::Vector2d textureCoord)
+GQYMath::vec3 Material::Kd(GQYMath::vec2 _texture_coord)
 {
     if (m_map_Kd)
     {
-        return m_Kd_map.texture(textureCoord);
+        return m_Kd_map.texture(_texture_coord);
     }
     else
     {

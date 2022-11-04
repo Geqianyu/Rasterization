@@ -10,35 +10,48 @@ Camera::Camera()
 
 }
 
-Camera::Camera(const Camera& camera)
+Camera::Camera(const Camera& _camera)
 {
-    m_position = camera.m_position;
-    m_z = camera.m_z;
-    m_y = camera.m_y;
-    m_x = camera.m_x;
-    m_viewMatrix = camera.m_viewMatrix;
-    m_projectionMatrix = camera.m_projectionMatrix;
-    m_fovy = camera.m_fovy;
-    m_aspect = camera.m_aspect;
-    m_near = camera.m_near;
-    m_far = camera.m_far;
+    m_position = _camera.m_position;
+    m_z = _camera.m_z;
+    m_y = _camera.m_y;
+    m_x = _camera.m_x;
+    m_view_matrix = _camera.m_view_matrix;
+    m_projection_matrix = _camera.m_projection_matrix;
+    m_fovy = _camera.m_fovy;
+    m_aspect = _camera.m_aspect;
+    m_near = _camera.m_near;
+    m_far = _camera.m_far;
+    m_elevation_angle = _camera.m_elevation_angle;
+    m_yaw_angle = _camera.m_yaw_angle;
+    m_first_mouse = _camera.m_first_mouse;
+    m_last_x = _camera.m_last_x;
+    m_last_y = _camera.m_last_y;
 }
 
-Camera::Camera(Eigen::Vector3d eye, Eigen::Vector3d lookat, Eigen::Vector3d up, double fovy, double aspect, double nearPlane, double farPlane)
+Camera::Camera(Point3 _eye, Point3 _lookat, GQYMath::vec3 _up, double _fovy, double _aspect, double _near_plane, double _far_plane)
 {
-    m_position = eye;
-    m_z = eye - lookat;
-    m_z.normalize();
-    m_y = up;
-    m_y.normalize();
-    m_x = m_y.cross(m_z);
-    m_x.normalize();
-    m_fovy = fovy * PI / 180.0;
-    m_near = nearPlane;
-    m_far = farPlane;
-    m_aspect = aspect;
-    generateViewMatrix();
-    generateProjectionMatrix();
+    m_position = _eye;
+    m_z = normalized_vector(_eye - _lookat);
+    m_x = normalized_vector(cross(_up, m_z));
+    m_y = normalized_vector(cross(m_z, m_x));
+    m_fovy = _fovy * PI / 180.0;
+    m_near = _near_plane;
+    m_far = _far_plane;
+    m_aspect = _aspect;
+    m_elevation_angle = 180.0 / PI * std::atanf(-m_z.y / std::sqrtf((-m_z.x) * (-m_z.x) + (-m_z.z) * (-m_z.z)));
+    GQYMath::vec3 temp = normalized_vector(GQYMath::vec3(-m_z.x, 0.0f, -m_z.z));
+    float temp_angle = 180.0f / PI * std::acosf(dot(temp, GQYMath::vec3(1.0f, 0.0f, 0.0f)));
+    if (temp.z < 0.0f)
+    {
+        m_yaw_angle = -temp_angle;
+    }
+    else
+    {
+        m_yaw_angle = temp_angle;
+    }
+    generate_view_matrix();
+    generate_projection_matrix();
 }
 
 Camera::~Camera()
@@ -46,18 +59,24 @@ Camera::~Camera()
 
 }
 
-void Camera::setAspect(double aspect)
+void Camera::set_aspect(double _aspect)
 {
-    m_aspect = aspect;
-    generateViewMatrix();
-    generateProjectionMatrix();
+    m_aspect = _aspect;
+    generate_projection_matrix();
 }
 
-void Camera::changeFovy(double step)
+void Camera::change_fovy(double _step)
 {
-    m_fovy = m_fovy + step * PI / 180.0;
-    generateViewMatrix();
-    generateProjectionMatrix();
+    m_fovy = m_fovy + _step * PI / 180.0;
+    if (m_fovy > PI / 2.0)
+    {
+        m_fovy = PI / 2.0;
+    }
+    if (m_fovy < 0.0)
+    {
+        m_fovy = 0.0;
+    }
+    generate_projection_matrix();
 }
 
 void Camera::move(MOVE_DIRECTION _move_direction)
@@ -65,53 +84,58 @@ void Camera::move(MOVE_DIRECTION _move_direction)
     switch (_move_direction)
     {
     case MOVE_DIRECTION::FRONT:
+        m_position -= m_z;
         break;
     case MOVE_DIRECTION::BACK:
+        m_position += m_z;
         break;
     case MOVE_DIRECTION::LEFT:
+        m_position -= m_x;
         break;
     case MOVE_DIRECTION::RIGHT:
+        m_position += m_x;
         break;
     default:
         break;
     }
+    generate_view_matrix();
 }
 
-Eigen::Matrix4d Camera::viewMatrix()
+void Camera::change_direction(double _position_x, double _position_y)
 {
-    return m_viewMatrix;
-}
+    if (m_first_mouse)
+    {
+        m_last_x = _position_x;
+        m_last_y = _position_y;
+        m_first_mouse = false;
+    }
 
-Eigen::Matrix4d Camera::projectionMatrix()
-{
-    return m_projectionMatrix;
-}
+    double offset_x = _position_x - m_last_x;
+    double offset_y = m_last_y - _position_y; // 注意这里是相反的，因为y坐标是从底部往顶部依次增大的
+    m_last_x = _position_x;
+    m_last_y = _position_y;
 
-Eigen::Vector3d Camera::position()
-{
-    return m_position;
-}
+    double sensitivity = 0.05;
+    offset_x *= sensitivity;
+    offset_y *= sensitivity;
 
-void Camera::generateViewMatrix()
-{
-    Eigen::Matrix4d m1;
-    Eigen::Matrix4d m2;
-    m1 << m_x.x(), m_x.y(), m_x.z(), 0.0
-        , m_y.x(), m_y.y(), m_y.z(), 0.0
-        , m_z.x(), m_z.y(), m_z.z(), 0.0
-        , 0.0, 0.0, 0.0, 1.0;
-    m2 << 1.0, 0.0, 0.0, -m_position.x()
-        , 0.0, 1.0, 0.0, -m_position.y()
-        , 0.0, 0.0, 1.0, -m_position.z()
-        , 0.0, 0.0, 0.0, 1.0;
-    m_viewMatrix = m1 * m2;
-}
+    m_yaw_angle += offset_x;
+    m_elevation_angle += offset_y;
+    if (m_elevation_angle > 89.0f)
+    {
+        m_elevation_angle = 89.0f;
+    }
+    if (m_elevation_angle < -89.0f)
+    {
+        m_elevation_angle = -89.0f;
+    }
 
-void Camera::generateProjectionMatrix()
-{
-    double tanHalfFovy = std::tan(m_fovy / 2.0);
-    m_projectionMatrix << 1.0 / m_aspect / tanHalfFovy, 0.0, 0.0, 0.0
-        , 0.0, 1.0 / tanHalfFovy, 0.0, 0.0
-        , 0.0, 0.0, (m_near + m_far) / (m_far - m_near), 2.0 * m_near * m_far / (m_far - m_near)
-        , 0.0, 0.0, -1.0, 0.0;
+    GQYMath::vec3 front;
+    front.x = std::cos(m_elevation_angle * PI / 180.0) * std::cos(m_yaw_angle * PI / 180.0);
+    front.y = std::sin(m_elevation_angle * PI / 180.0);
+    front.z = std::cos(m_elevation_angle * PI / 180.0) * std::sin(m_yaw_angle * PI / 180.0);
+    m_z = -normalized_vector(front);
+    m_x = normalized_vector(cross(GQYMath::vec3(0.0, 1.0, 0.0), m_z));
+    m_y = normalized_vector(cross(m_z, m_x));
+    generate_view_matrix();
 }

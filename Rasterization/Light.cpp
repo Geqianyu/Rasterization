@@ -6,18 +6,14 @@ Light::Light()
 
 }
 
-Light::Light(const Light& light)
+Light::Light(const Light& _light) : m_ambient(_light.m_ambient), m_direction(_light.m_direction), m_emission(_light.m_emission)
 {
-    m_ambient = light.m_ambient;
-    m_direction = light.m_direction;
-    m_emission = light.m_emission;
+
 }
 
-Light::Light(Eigen::Vector3d ambient, Eigen::Vector3d direction, Eigen::Vector3d emission)
+Light::Light(GQYMath::vec3 _ambient, GQYMath::vec3 _direction, GQYMath::vec3 _emission) : m_ambient(_ambient), m_direction(_direction), m_emission(_emission)
 {
-    m_ambient = ambient;
-    m_direction = direction;
-    m_emission = emission;
+
 }
 
 Light::~Light()

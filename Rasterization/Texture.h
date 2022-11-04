@@ -1,10 +1,10 @@
-﻿#ifndef ____TEXTURE_H____
-#define ____TEXTURE_H____
+﻿#ifndef _GQY_TEXTURE_H_
+#define _GQY_TEXTURE_H_
 
 #include <windows.h>
 #include <string>
-#include <Eigen/Dense>
-#include <Eigen/Core>
+
+#include "Math.h"
 
 /*
 * Texture 类，保存纹理
@@ -19,11 +19,11 @@ private:
 public:
     // 公有函数
     Texture();
-    Texture(std::string textureFilePath);
+    Texture(std::string _texture_file_path);
     ~Texture();
 
-    void loadTexture(std::string textureFilePath);
-    Eigen::Vector3d texture(Eigen::Vector2d textureCoord);
+    void load_texture(std::string _texture_file_path);
+    GQYMath::vec3 texture(GQYMath::vec2 _texture_coord);
 };
 
-#endif // !____TEXTURE_H____
+#endif // !_GQY_TEXTURE_H_

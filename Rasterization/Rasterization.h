@@ -1,9 +1,10 @@
-﻿#ifndef ____RASTERIZATION_H____
-#define ____RASTERIZATION_H____
+﻿#ifndef _GQY_RASTERIZATION_H_
+#define _GQY_RASTERIZATION_H_
 
 #include <string>
 #include <cmath>
 
+#include "Math.h"
 #include "Screen.h"
 #include "Obj.h"
 #include "Camera.h"
@@ -19,16 +20,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 namespace Rasterization
 {
-    const double PI = std::asin(1.0) * 2.0;
     Screen m_screen;                                                        // 显示窗口
     Camera m_camera;                                                        // 相机
     Obj m_obj;                                                              // 用于加载 .obj 文件
     Light m_light;                                                          // 光源
     Shader* m_pShader = nullptr;                                            // 着色器指针
     double m_aspect = 1.0;                                                  // 显示窗口的 宽高 比
-    LPPOINT m_lastPoint = new POINT();                                      // 保存鼠标按下时的鼠标值
     LPPOINT m_point = new POINT();                                          // 保存鼠标移动时的鼠标值
-    Eigen::Matrix4d m_modelMatrix = Eigen::Matrix4d::Identity();            // 模型的变换矩阵
 
     void createScreen(                                                                                                                      // 创建窗口
         HINSTANCE hInstance,
@@ -39,9 +37,9 @@ namespace Rasterization
         INT windowWidth,                // 窗口宽度
         INT windowHeight                // 窗口高度
     );
-    void loadObj(std::string objFilePath);                                                                                                  // 加载 .obj 文件
-    void createCamera(Eigen::Vector3d eye, Eigen::Vector3d lookat, Eigen::Vector3d up, double fovy, double nearPlane, double farPlane);     // 创建相机
-    void createLight(Eigen::Vector3d ambient, Eigen::Vector3d direction, Eigen::Vector3d emission);                                         // 创建光源
+    void load_obj(std::string _obj_file_path);                                                                                                  // 加载 .obj 文件
+    void create_camera(Point3 _eye, Point3 _lookat, GQYMath::vec3 _up, double _fovy, double _near_plane, double _far_plane);     // 创建相机
+    void create_light(GQYMath::vec3 _ambient, GQYMath::vec3 _direction, GQYMath::vec3 _emission);                                         // 创建光源
 
     void show();
     void shutDown();
@@ -70,19 +68,19 @@ void Rasterization::createScreen(
     m_aspect = (float)windowHeight / (float)windowWidth;
 }
 
-void Rasterization::loadObj(std::string objFilePath)
+void Rasterization::load_obj(std::string _obj_file_path)
 {
-    m_obj.loadObj(objFilePath);
+    m_obj.load_obj(_obj_file_path);
 }
 
-void Rasterization::createCamera(Eigen::Vector3d eye, Eigen::Vector3d lookat, Eigen::Vector3d up, double fovy, double nearPlane, double farPlane)
+void Rasterization::create_camera(Point3 _eye, Point3 _lookat, GQYMath::vec3 _up, double _fovy, double _near_plane, double _far_plane)
 {
-    m_camera = Camera(eye, lookat, up, fovy, m_aspect, nearPlane, farPlane);
+    m_camera = Camera(_eye, _lookat, _up, _fovy, m_aspect, _near_plane, _far_plane);
 }
 
-void Rasterization::createLight(Eigen::Vector3d ambient, Eigen::Vector3d direction, Eigen::Vector3d emission)
+void Rasterization::create_light(GQYMath::vec3 _ambient, GQYMath::vec3 _direction, GQYMath::vec3 _emission)
 {
-    m_light = Light(ambient, direction, emission);
+    m_light = Light(_ambient, _direction, _emission);
 }
 
 void Rasterization::show()
@@ -123,62 +121,35 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
         case 87:
             // 按下 W 键，相机向前移动
+            Rasterization::m_camera.move(MOVE_DIRECTION::FRONT);
             break;
         case 65:
             // 按下 A 键，相机向左移动
+            Rasterization::m_camera.move(MOVE_DIRECTION::LEFT);
             break;
         case 83:
             // 按下 S 键，相机向后移动
+            Rasterization::m_camera.move(MOVE_DIRECTION::BACK);
             break;
         case 68:
             // 按下 D 键，相机向右移动
+            Rasterization::m_camera.move(MOVE_DIRECTION::RIGHT);
             break;
         }
         break;
     case WM_MOUSEMOVE:
         // 鼠标移动，调整摄像机的朝向
-        // if (Rasterization::m_LisDown)
-        // {
-        //     GetCursorPos(Rasterization::m_point);
-        //     double angle = 0.0;
-        //     Eigen::Vector3d n;
-        //     if (GetKeyState(VK_CONTROL) & 0X8000)
-        //     {
-        //         // 按住 ctrl 时 垂直旋转
-        //         n = Rasterization::m_camera.XAxis();
-        //         angle = (Rasterization::m_point->y - Rasterization::m_lastPoint->y) * Rasterization::PI / 180.0;
-        //     }
-        //     else
-        //     {
-        //         n = Rasterization::m_camera.YAxis();
-        //         angle = (Rasterization::m_point->x - Rasterization::m_lastPoint->x) * Rasterization::PI / 180.0;
-        //     }
-        //     Rasterization::m_modelRotate = Rasterization::m_obj.rotate(angle, n) * Rasterization::m_modelRotate;
-        // 
-        //     Rasterization::m_lastPoint->x = Rasterization::m_point->x;
-        //     Rasterization::m_lastPoint->y = Rasterization::m_point->y;
-        // }
-        // else if (Rasterization::m_RisDown)
-        // {
-        //     GetCursorPos(Rasterization::m_point);
-        //     double stepX = Rasterization::m_point->x - Rasterization::m_lastPoint->x;
-        //     double stepY = Rasterization::m_point->y - Rasterization::m_lastPoint->y;
-        //     Rasterization::m_modelTranslate = Rasterization::m_obj.translate(stepX, Rasterization::m_camera.XAxis()) * Rasterization::m_obj.translate(-stepY, Rasterization::m_camera.YAxis()) * Rasterization::m_modelTranslate;
-        //     Rasterization::m_screen.setModelMatrix(Rasterization::m_modelMatrix);
-        //     Rasterization::m_lastPoint->x = Rasterization::m_point->x;
-        //     Rasterization::m_lastPoint->y = Rasterization::m_point->y;
-        // }
-        // Rasterization::m_modelMatrix = Rasterization::m_modelTranslate * Rasterization::m_modelRotate;
-        // Rasterization::m_screen.setModelMatrix(Rasterization::m_modelMatrix);
+        GetCursorPos(Rasterization::m_point);
+        Rasterization::m_camera.change_direction(Rasterization::m_point->x, Rasterization::m_point->y);
         break;
     case WM_MOUSEWHEEL:
         if ((SHORT)HIWORD(wParam) > 0)
         {
-            Rasterization::m_camera.changeFovy(-1.0f);
+            Rasterization::m_camera.change_fovy(-1.0f);
         }
         else
         {
-            Rasterization::m_camera.changeFovy(1.0f);
+            Rasterization::m_camera.change_fovy(1.0f);
         }
         break;
     default:
@@ -189,4 +160,4 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-#endif // !____RASTERIZATION_H____
+#endif // !_GQY_RASTERIZATION_H_

@@ -1,7 +1,8 @@
-﻿#ifndef ____SHADER_H____
-#define ____SHADER_H____
+﻿#ifndef _GQY_SHADER_H_
+#define _GQY_SHADER_H_
 
 #include <Windows.h>
+#include "Math.h"
 #include "obj.h"
 #include "Camera.h"
 #include "Light.h"
@@ -14,15 +15,12 @@ class Shader
 private:
     // 私有变量
     Obj* m_obj = nullptr;
-    Eigen::Matrix4d m_projectionMatrix = Eigen::Matrix4d::Identity();
-    Eigen::Matrix4d m_viewMatrix = Eigen::Matrix4d::Identity();
-    Eigen::Vector3d m_lightAmbient;
-    Eigen::Vector3d m_lightDirection;
-    Eigen::Vector3d m_lightEmission;
-    Eigen::Vector3d m_cameraPosition;
-    std::vector<Eigen::Vector4d> m_gl_vertices;
-    std::vector<Eigen::Vector3d> m_calculate_vertices;
-    std::vector<Eigen::Vector3d> m_calculate_normals;
+    GQYMath::mat4 m_matrix;
+    GQYMath::vec3 m_light_ambient;
+    GQYMath::vec3 m_light_direction;
+    GQYMath::vec3 m_light_emission;
+    Point3 m_camera_position;
+    std::vector<Point4> m_gl_vertices;
     bool* m_flag = nullptr;
     double* m_zBuffer = nullptr;
     BYTE* m_frameBuffer = nullptr;
@@ -31,17 +29,17 @@ private:
 
 public:
     // 公有函数
-    Shader(Obj* obj, int width, int height);
+    Shader(Obj* _obj, int _width, int _height);
     ~Shader();
 
-    BYTE* shading(Camera& camera, Light& light);
+    BYTE* shading(Camera& _camera, Light& _light);
 
 private:
     // 私有函数
-    void vertexShading();
-    void trianglesShading();
-    void rasterizationAndFragmentShading();
-    Eigen::Vector3d fragmentShader(Eigen::Vector3d fragmentPosition, Eigen::Vector3d fragmentNormal, Eigen::Vector2d fragmentTexture, std::string material);
+    void vertex_shading();
+    void triangles_shading();
+    void rasterization_and_fragment_shading();
+    Color fragment_shader(Point3& _fragment_position, GQYMath::vec3& _fragment_normal, GQYMath::vec2& _fragment_texture, std::string& _material);
 };
 
-#endif // !____SHADER_H____
+#endif // !_GQY_SHADER_H_

@@ -10,20 +10,19 @@ Obj::Obj()
 
 }
 
-Obj::Obj(const Obj& obj)
+Obj::Obj(const Obj& _obj)
 {
-    m_vs = obj.m_vs;
-    m_vns = obj.m_vns;
-    m_vts = obj.m_vts;
-    m_meshs = obj.m_meshs;
-    m_materials = obj.m_materials;
-    m_relatingFaces = obj.m_relatingFaces;
-    m_center = obj.m_center;
+    m_vs = _obj.m_vs;
+    m_vns = _obj.m_vns;
+    m_vts = _obj.m_vts;
+    m_meshs = _obj.m_meshs;
+    m_materials = _obj.m_materials;
+    m_relating_faces = _obj.m_relating_faces;
 }
 
-Obj::Obj(std::string filePath)
+Obj::Obj(std::string _file_path)
 {
-    loadObj(filePath);
+    load_obj(_file_path);
 }
 
 Obj::~Obj()
@@ -31,258 +30,188 @@ Obj::~Obj()
 
 }
 
-void Obj::loadObj(std::string filePath)
+void Obj::load_obj(std::string _file_path)
 {
-    std::ifstream objFile;
-    std::string str, currentMaterial;
-    objFile.open(filePath, std::ios::in);
-    if (!objFile.is_open())
+    std::ifstream obj_file;
+    std::string str, current_material;
+    obj_file.open(_file_path, std::ios::in);
+    if (!obj_file.is_open())
     {
-        std::cout << ".obj 文件打开失败: " << filePath << std::endl;
+        std::cout << ".obj 文件打开失败: " << _file_path << std::endl;
         exit(-2);
     }
 
-    double top = -FLT_MAX;
-    double bottom = FLT_MAX;
-    double right = -FLT_MAX;
-    double left = FLT_MAX;
-    double front = -FLT_MAX;
-    double back = FLT_MAX;
-
-    while (objFile >> str)
+    while (obj_file >> str)
     {
         if (str == "v")
         {
-            double tempV[3];
+            double temp_v[3];
             for (int i = 0; i < 3; i++)
             {
-                objFile >> str;
-                tempV[i] = std::stod(str);
+                obj_file >> str;
+                temp_v[i] = std::stod(str);
             }
-            if (left > tempV[0])
-            {
-                left = tempV[0];
-            }
-            if (right < tempV[0])
-            {
-                right = tempV[0];
-            }
-            if (top < tempV[1])
-            {
-                top = tempV[1];
-            }
-            if (bottom > tempV[1])
-            {
-                bottom = tempV[1];
-            }
-            if (front < tempV[2])
-            {
-                front = tempV[2];
-            }
-            if (back > tempV[2])
-            {
-                back = tempV[2];
-            }
-            m_vs.push_back(Eigen::Vector3d(tempV[0], tempV[1], tempV[2]));
+            m_vs.push_back(Point3(temp_v[0], temp_v[1], temp_v[2]));
         }
         else if (str == "vt")
         {
-            double tempVt[2];
+            double temp_vt[2];
             for (int i = 0; i < 2; i++)
             {
-                objFile >> str;
-                tempVt[i] = std::stod(str);
+                obj_file >> str;
+                temp_vt[i] = std::stod(str);
+                while (temp_vt[i] < 0.0)
+                {
+                    temp_vt[i] = temp_vt[i] + 1.0;
+                }
+                while (temp_vt[i] > 1.0)
+                {
+                    temp_vt[i] = temp_vt[i] - 1.0;
+                }
             }
-            while (tempVt[0] < 0.0)
-            {
-                tempVt[0] = tempVt[0] + 1.0;
-            }
-            while (tempVt[0] > 1.0)
-            {
-                tempVt[0] = tempVt[0] - 1.0;
-            }
-            while (tempVt[1] < 0.0)
-            {
-                tempVt[1] = tempVt[1] + 1.0;
-            }
-            while (tempVt[1] > 1.0)
-            {
-                tempVt[1] = tempVt[1] - 1.0;
-            }
-            m_vts.push_back(Eigen::Vector2d(tempVt[0], tempVt[1]));
+            m_vts.push_back(GQYMath::vec2(temp_vt[0], temp_vt[1]));
         }
         else if (str == "vn")
         {
-            double tempVn[3];
+            double temp_vn[3];
             for (int i = 0; i < 3; i++)
             {
-                objFile >> str;
-                tempVn[i] = std::stod(str);
+                obj_file >> str;
+                temp_vn[i] = std::stod(str);
             }
-            m_vns.push_back(Eigen::Vector3d(tempVn[0], tempVn[1], tempVn[2]));
+            m_vns.push_back(GQYMath::vec3(temp_vn[0], temp_vn[1], temp_vn[2]));
         }
         else if (str == "f")
         {
             Mesh tempMesh;
             for (int i = 0; i < 3; i++)
             {
-                objFile >> str;
-                size_t firstIndex = str.find('/');
-                size_t secondIndex = str.find_last_of('/');
-                tempMesh.m_vertexIndeices[i] = std::stoi(str.substr(0, firstIndex)) - 1;
-                tempMesh.m_textureIndeices[i] = std::stoi(str.substr(firstIndex + 1, secondIndex - firstIndex - 1)) - 1;
-                tempMesh.m_normalIndeices[i] = std::stoi(str.substr(secondIndex + 1, str.length() - secondIndex - 1)) - 1;
+                obj_file >> str;
+                size_t first_index = str.find('/');
+                size_t second_index = str.find_last_of('/');
+                tempMesh.m_vertex_indeices[i] = std::stoi(str.substr(0, first_index)) - 1;
+                tempMesh.m_texture_indeices[i] = std::stoi(str.substr(first_index + 1, second_index - first_index - 1)) - 1;
+                tempMesh.m_normal_indeices[i] = std::stoi(str.substr(second_index + 1, str.length() - second_index - 1)) - 1;
             }
-            tempMesh.m_material = currentMaterial;
+            tempMesh.m_material = current_material;
             m_meshs.push_back(tempMesh);
             int meshIndex = m_meshs.size() - 1;
-            m_relatingFaces[m_meshs[meshIndex].m_vertexIndeices[0]].push_back(meshIndex);
-            m_relatingFaces[m_meshs[meshIndex].m_vertexIndeices[1]].push_back(meshIndex);
-            m_relatingFaces[m_meshs[meshIndex].m_vertexIndeices[2]].push_back(meshIndex);
+            m_relating_faces[m_meshs[meshIndex].m_vertex_indeices[0]].push_back(meshIndex);
+            m_relating_faces[m_meshs[meshIndex].m_vertex_indeices[1]].push_back(meshIndex);
+            m_relating_faces[m_meshs[meshIndex].m_vertex_indeices[2]].push_back(meshIndex);
         }
         else if (str == "mtllib")
         {
-            objFile >> str;
-            std::string mtlFilePath = filePath.substr(0, filePath.find_last_of('/')) + '/' + str;
-            loadMtl(mtlFilePath);
+            obj_file >> str;
+            std::string mtl_file_path = _file_path.substr(0, _file_path.find_last_of('/')) + '/' + str;
+            load_mtl(mtl_file_path);
         }
         else if (str == "usemtl")
         {
-            objFile >> currentMaterial;
+            obj_file >> current_material;
         }
     }
-    m_center = Eigen::Vector3d((left + right) / 2.0, (top + bottom) / 2.0, (front + back) / 2.0);
 }
 
-void Obj::loadMtl(std::string filePath)
+void Obj::load_mtl(std::string _file_path)
 {
-    std::ifstream mtlFile;
-    std::string str, currentMaterial;
-    mtlFile.open(filePath, std::ios::in);
-    if (!mtlFile.is_open())
+    std::ifstream mtl_file;
+    std::string str, current_material;
+    mtl_file.open(_file_path, std::ios::in);
+    if (!mtl_file.is_open())
     {
-        std::cout << ".mtl 文件打开失败: " << filePath << std::endl;
+        std::cout << ".mtl 文件打开失败: " << _file_path << std::endl;
         exit(-2);
     }
 
-    while (mtlFile >> str)
+    while (mtl_file >> str)
     {
         if (str == "Ns")
         {
-            mtlFile >> str;
-            m_materials[currentMaterial].m_Ns = std::stod(str);
+            mtl_file >> str;
+            m_materials[current_material].m_Ns = std::stod(str);
         }
         else if (str == "Ni")
         {
-            mtlFile >> str;
-            m_materials[currentMaterial].m_Ni = std::stod(str);
+            mtl_file >> str;
+            m_materials[current_material].m_Ni = std::stod(str);
         }
         else if (str == "d")
         {
-            mtlFile >> str;
-            m_materials[currentMaterial].m_d = std::stod(str);
+            mtl_file >> str;
+            m_materials[current_material].m_d = std::stod(str);
         }
         else if (str == "Tr")
         {
-            mtlFile >> str;
-            m_materials[currentMaterial].m_Tr = std::stod(str);
+            mtl_file >> str;
+            m_materials[current_material].m_Tr = std::stod(str);
         }
         else if (str == "Tf")
         {
-            double tempTf[3];
+            double temp_Tf[3];
             for (int i = 0; i < 3; i++)
             {
-                mtlFile >> str;
-                tempTf[i] = std::stod(str);
+                mtl_file >> str;
+                temp_Tf[i] = std::stod(str);
             }
-            m_materials[currentMaterial].m_Tf = Eigen::Vector3d(tempTf[0], tempTf[1], tempTf[2]);
+            m_materials[current_material].m_Tf = GQYMath::vec3(temp_Tf[0], temp_Tf[1], temp_Tf[2]);
         }
         else if (str == "Ka")
         {
-            double tempKa[3];
+            double temp_Ka[3];
             for (int i = 0; i < 3; i++)
             {
-                mtlFile >> str;
-                tempKa[i] = std::stod(str);
+                mtl_file >> str;
+                temp_Ka[i] = std::stod(str);
             }
-            m_materials[currentMaterial].m_Ka = Eigen::Vector3d(tempKa[0], tempKa[1], tempKa[2]);
+            m_materials[current_material].m_Ka = GQYMath::vec3(temp_Ka[0], temp_Ka[1], temp_Ka[2]);
         }
         else if (str == "Kd")
         {
-            double tempKd[3];
+            double temp_Kd[3];
             for (int i = 0; i < 3; i++)
             {
-                mtlFile >> str;
-                tempKd[i] = std::stod(str);
+                mtl_file >> str;
+                temp_Kd[i] = std::stod(str);
             }
-            m_materials[currentMaterial].m_Kd = Eigen::Vector3d(tempKd[0], tempKd[1], tempKd[2]);
+            m_materials[current_material].m_Kd = GQYMath::vec3(temp_Kd[0], temp_Kd[1], temp_Kd[2]);
         }
         else if (str == "Ks")
         {
-            double tempKs[3];
+            double temp_Ks[3];
             for (int i = 0; i < 3; i++)
             {
-                mtlFile >> str;
-                tempKs[i] = std::stod(str);
+                mtl_file >> str;
+                temp_Ks[i] = std::stod(str);
             }
-            m_materials[currentMaterial].m_Ks = Eigen::Vector3d(tempKs[0], tempKs[1], tempKs[2]);
+            m_materials[current_material].m_Ks = GQYMath::vec3(temp_Ks[0], temp_Ks[1], temp_Ks[2]);
         }
         else if (str == "Ke")
         {
-            double tempKe[3];
+            double temp_Ke[3];
             for (int i = 0; i < 3; i++)
             {
-                mtlFile >> str;
-                tempKe[i] = std::stod(str);
+                mtl_file >> str;
+                temp_Ke[i] = std::stod(str);
             }
-            m_materials[currentMaterial].m_Ke = Eigen::Vector3d(tempKe[0], tempKe[1], tempKe[2]);
+            m_materials[current_material].m_Ke = GQYMath::vec3(temp_Ke[0], temp_Ke[1], temp_Ke[2]);
         }
         else if (str == "map_Ka")
         {
-            mtlFile >> str;
-            std::string mapFilePath = filePath.substr(0, filePath.find_last_of('/')) + '/' + str;
-            m_materials[currentMaterial].loadKa(mapFilePath);
+            mtl_file >> str;
+            std::string map_file_path = _file_path.substr(0, _file_path.find_last_of('/')) + '/' + str;
+            m_materials[current_material].loadKa(map_file_path);
         }
         else if (str == "map_Kd")
         {
-            mtlFile >> str;
-            std::string mapFilePath = filePath.substr(0, filePath.find_last_of('/')) + '/' + str;
-            m_materials[currentMaterial].loadKd(mapFilePath);
+            mtl_file >> str;
+            std::string map_file_path = _file_path.substr(0, _file_path.find_last_of('/')) + '/' + str;
+            m_materials[current_material].loadKd(map_file_path);
         }
         else if (str == "newmtl")
         {
-            mtlFile >> currentMaterial;
-            m_materials[currentMaterial] = Material();
+            mtl_file >> current_material;
+            m_materials[current_material] = Material();
         }
     }
-}
-
-Eigen::Matrix4d Obj::rotate(double angle, Eigen::Vector3d normal)
-{
-    Eigen::Matrix4d m1;
-    m1 << 1.0, 0.0, 0.0, -m_center.x()
-        , 0.0, 1.0, 0.0, -m_center.y()
-        , 0.0, 0.0, 1.0, -m_center.z()
-        , 0.0, 0.0, 0.0, 1.0;
-    Eigen::Matrix4d m2 = m1.inverse();
-    double cosAngle = std::cos(angle);
-    double sinAngle = std::sin(angle);
-    double CcosAngle = 1.0 - cosAngle;
-    Eigen::Matrix4d temp;
-    temp << cosAngle + CcosAngle * normal.x() * normal.x(), CcosAngle* normal.x()* normal.y() - sinAngle * normal.z(), CcosAngle* normal.x()* normal.z() + sinAngle * normal.y(), 0.0
-        , CcosAngle* normal.x()* normal.y() + sinAngle * normal.z(), cosAngle + CcosAngle * normal.y() * normal.y(), CcosAngle* normal.y()* normal.z() - sinAngle * normal.x(), 0.0
-        , CcosAngle* normal.z()* normal.x() - sinAngle * normal.y(), CcosAngle* normal.y()* normal.z() + sinAngle * normal.x(), cosAngle + CcosAngle * normal.z() * normal.z(), 0.0
-        , 0.0, 0.0, 0.0, 1.0;
-    Eigen::Matrix4d result = m2 * temp * m1;
-    return result;
-}
-
-Eigen::Matrix4d Obj::translate(double step, Eigen::Vector3d direction)
-{
-    Eigen::Matrix4d result;
-    result << 1.0, 0.0, 0.0, step* direction.x()
-        , 0.0, 1.0, 0.0, step* direction.y()
-        , 0.0, 0.0, 1.0, step* direction.z()
-        , 0.0, 0.0, 0.0, 1.0;
-    return result;
 }

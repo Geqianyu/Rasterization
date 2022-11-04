@@ -1,10 +1,9 @@
-﻿#ifndef ____MATERIAL_H____
-#define ____MATERIAL_H____
+﻿#ifndef _GQY_MATERIAL_H_
+#define _GQY_MATERIAL_H_
 
-#include <Eigen/Dense>
-#include <Eigen/Core>
 #include <string>
 
+#include "Math.h"
 #include "Texture.h"
 
 /*
@@ -18,11 +17,11 @@ public:
     double m_Ni = 1.0;
     double m_d = 1.0;
     double m_Tr = 0.0;
-    Eigen::Vector3d m_Tf;
-    Eigen::Vector3d m_Ka;
-    Eigen::Vector3d m_Kd;
-    Eigen::Vector3d m_Ks;
-    Eigen::Vector3d m_Ke;
+    GQYMath::vec3 m_Tf;
+    GQYMath::vec3 m_Ka;
+    GQYMath::vec3 m_Kd;
+    GQYMath::vec3 m_Ks;
+    GQYMath::vec3 m_Ke;
     bool m_map_Ka = false;
     Texture m_Ka_map;
     bool m_map_Kd = false;
@@ -33,11 +32,11 @@ public:
     Material();
     ~Material();
 
-    Eigen::Vector3d Ka(Eigen::Vector2d textureCoord);
-    Eigen::Vector3d Kd(Eigen::Vector2d textureCoord);
+    GQYMath::vec3 Ka(GQYMath::vec2 _texture_coord);
+    GQYMath::vec3 Kd(GQYMath::vec2 _texture_coord);
 
-    void loadKa(std::string filePath);
-    void loadKd(std::string filePath);
+    void loadKa(std::string _file_path);
+    void loadKd(std::string _file_path);
 };
 
-#endif // !____MATERIAL_H____
+#endif // !_GQY_MATERIAL_H_

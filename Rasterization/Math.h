@@ -5,10 +5,68 @@
 #include <cmath>
 
 /*
-* Math 库，包括 vec3, vec4, mat3, mat4
+* Math 库，包括 vec2, vec3, vec4, mat3, mat4
 */
 namespace GQYMath
 {
+    class vec2
+    {
+    public:
+        vec2();
+        vec2(const vec2& _vector);
+        vec2(double _x, double _y);
+        ~vec2();
+
+        inline vec2 operator - () const
+        {
+            return vec2(-x, -y);
+        }
+
+        inline vec2& operator = (const vec2& _vector)
+        {
+            x = _vector.x;
+            y = _vector.y;
+            return *this;
+        }
+
+        inline vec2& operator += (const vec2& _vector)
+        {
+            x += _vector.x;
+            y += _vector.y;
+            return *this;
+        }
+
+        inline vec2& operator *= (const double _t)
+        {
+            x *= _t;
+            y *= _t;
+            return *this;
+        }
+
+        inline vec2& operator /= (const double _t)
+        {
+            x /= _t;
+            y /= _t;
+            return *this;
+        }
+
+        inline double length() const
+        {
+            return std::sqrt(x * x + y * y);
+        }
+
+        inline bool near_zero()
+        {
+            return std::abs(x) < 1e-8 && std::abs(y) < 1e-8;
+        }
+
+    public:
+        double x;
+        double y;
+        double& u = x;
+        double& v = y;
+    };
+
     class vec3
     {
     public:
@@ -35,6 +93,14 @@ namespace GQYMath
             x += _vector.x;
             y += _vector.y;
             z += _vector.z;
+            return *this;
+        }
+
+        inline vec3& operator -= (const vec3& _vector)
+        {
+            x -= _vector.x;
+            y -= _vector.y;
+            z -= _vector.z;
             return *this;
         }
 
@@ -248,6 +314,57 @@ namespace GQYMath
     };
 };
 
+
+/******************************* vec2 ************************************/
+inline std::ostream& operator << (std::ostream& _out, const GQYMath::vec2& _vector)
+{
+    _out << _vector.x << " " << _vector.y;
+    return _out;
+}
+
+inline GQYMath::vec2 normalized_vector(const GQYMath::vec2& _vector)
+{
+    double length = _vector.length();
+    return GQYMath::vec2(_vector.x / length, _vector.y / length);
+}
+
+inline GQYMath::vec2 operator + (const GQYMath::vec2& _vector1, const GQYMath::vec2& _vector2)
+{
+    return GQYMath::vec2(_vector1.x + _vector2.x, _vector1.y + _vector2.y);
+}
+
+inline GQYMath::vec2 operator - (const GQYMath::vec2& _vector1, const GQYMath::vec2& _vector2)
+{
+    return GQYMath::vec2(_vector1.x - _vector2.x, _vector1.y - _vector2.y);
+}
+
+inline GQYMath::vec2 operator * (const GQYMath::vec2& _vector1, const GQYMath::vec2& _vector2)
+{
+    return GQYMath::vec2(_vector1.x * _vector2.x, _vector1.y * _vector2.y);
+}
+
+inline GQYMath::vec2 operator * (double _t, const GQYMath::vec2& _vector)
+{
+    return GQYMath::vec2(_vector.x * _t, _vector.y * _t);
+}
+
+inline GQYMath::vec2 operator * (const GQYMath::vec2& _vector, double _t)
+{
+    return _t * _vector;
+}
+
+inline GQYMath::vec2 operator / (GQYMath::vec2 _vector, double _t)
+{
+    return GQYMath::vec2(_vector.x / _t, _vector.y / _t);
+}
+
+inline double dot(const GQYMath::vec2& _vector1, const GQYMath::vec2& _vector2)
+{
+    return _vector1.x * _vector2.x + _vector1.y * _vector2.y;
+}
+/***************************** end vec2 **********************************/
+
+
 /******************************* vec3 ************************************/
 inline std::ostream& operator << (std::ostream& _out, const GQYMath::vec3& _vector)
 {
@@ -369,15 +486,10 @@ inline GQYMath::mat3 operator - (GQYMath::mat3 _matrix1, GQYMath::mat3 _matrix2)
 inline GQYMath::mat3 operator * (GQYMath::mat3 _matrix1, GQYMath::mat3 _matrix2)
 {
     return GQYMath::mat3(
-          _matrix1.element[0].x * _matrix2.element[0].x + _matrix1.element[0].y * _matrix2.element[1].x + _matrix1.element[0].z * _matrix2.element[2].x, _matrix1.element[0].x * _matrix2.element[0].y + _matrix1.element[0].y * _matrix2.element[1].y + _matrix1.element[0].z * _matrix2.element[2].y, _matrix1.element[0].x * _matrix2.element[0].z + _matrix1.element[0].y * _matrix2.element[1].z + _matrix1.element[0].z * _matrix2.element[2].z
+        _matrix1.element[0].x * _matrix2.element[0].x + _matrix1.element[0].y * _matrix2.element[1].x + _matrix1.element[0].z * _matrix2.element[2].x, _matrix1.element[0].x * _matrix2.element[0].y + _matrix1.element[0].y * _matrix2.element[1].y + _matrix1.element[0].z * _matrix2.element[2].y, _matrix1.element[0].x * _matrix2.element[0].z + _matrix1.element[0].y * _matrix2.element[1].z + _matrix1.element[0].z * _matrix2.element[2].z
         , _matrix1.element[1].x * _matrix2.element[0].x + _matrix1.element[1].y * _matrix2.element[1].x + _matrix1.element[1].z * _matrix2.element[2].x, _matrix1.element[1].x * _matrix2.element[0].y + _matrix1.element[1].y * _matrix2.element[1].y + _matrix1.element[1].z * _matrix2.element[2].y, _matrix1.element[1].x * _matrix2.element[0].z + _matrix1.element[1].y * _matrix2.element[1].z + _matrix1.element[1].z * _matrix2.element[2].z
         , _matrix1.element[2].x * _matrix2.element[0].x + _matrix1.element[2].y * _matrix2.element[1].x + _matrix1.element[2].z * _matrix2.element[2].x, _matrix1.element[2].x * _matrix2.element[0].y + _matrix1.element[2].y * _matrix2.element[1].y + _matrix1.element[2].z * _matrix2.element[2].y, _matrix1.element[2].x * _matrix2.element[0].z + _matrix1.element[2].y * _matrix2.element[1].z + _matrix1.element[2].z * _matrix2.element[2].z
     );
-}
-
-inline GQYMath::vec3 operator * (GQYMath::mat3 _matrix, GQYMath::vec3 _vector)
-{
-    return GQYMath::vec3(dot(_matrix.element[0], _vector), dot(_matrix.element[1], _vector), dot(_matrix.element[2], _vector));
 }
 /***************************** end mat3 **********************************/
 
@@ -405,16 +517,11 @@ inline GQYMath::mat4 operator - (GQYMath::mat4 _matrix1, GQYMath::mat4 _matrix2)
 inline GQYMath::mat4 operator * (GQYMath::mat4 _matrix1, GQYMath::mat4 _matrix2)
 {
     return GQYMath::mat4(
-          _matrix1.element[0].x * _matrix2.element[0].x + _matrix1.element[0].y * _matrix2.element[1].x + _matrix1.element[0].z * _matrix2.element[2].x + _matrix1.element[0].w * _matrix2.element[3].x, _matrix1.element[0].x * _matrix2.element[0].y + _matrix1.element[0].y * _matrix2.element[1].y + _matrix1.element[0].z * _matrix2.element[2].y + _matrix1.element[0].w * _matrix2.element[3].y, _matrix1.element[0].x * _matrix2.element[0].z + _matrix1.element[0].y * _matrix2.element[1].z + _matrix1.element[0].z * _matrix2.element[2].z + _matrix1.element[0].w * _matrix2.element[3].z, _matrix1.element[0].x * _matrix2.element[0].w + _matrix1.element[0].y * _matrix2.element[1].w + _matrix1.element[0].z * _matrix2.element[2].w + _matrix1.element[0].w * _matrix2.element[3].w
+        _matrix1.element[0].x * _matrix2.element[0].x + _matrix1.element[0].y * _matrix2.element[1].x + _matrix1.element[0].z * _matrix2.element[2].x + _matrix1.element[0].w * _matrix2.element[3].x, _matrix1.element[0].x * _matrix2.element[0].y + _matrix1.element[0].y * _matrix2.element[1].y + _matrix1.element[0].z * _matrix2.element[2].y + _matrix1.element[0].w * _matrix2.element[3].y, _matrix1.element[0].x * _matrix2.element[0].z + _matrix1.element[0].y * _matrix2.element[1].z + _matrix1.element[0].z * _matrix2.element[2].z + _matrix1.element[0].w * _matrix2.element[3].z, _matrix1.element[0].x * _matrix2.element[0].w + _matrix1.element[0].y * _matrix2.element[1].w + _matrix1.element[0].z * _matrix2.element[2].w + _matrix1.element[0].w * _matrix2.element[3].w
         , _matrix1.element[1].x * _matrix2.element[0].x + _matrix1.element[1].y * _matrix2.element[1].x + _matrix1.element[1].z * _matrix2.element[2].x + _matrix1.element[1].w * _matrix2.element[3].x, _matrix1.element[1].x * _matrix2.element[0].y + _matrix1.element[1].y * _matrix2.element[1].y + _matrix1.element[1].z * _matrix2.element[2].y + _matrix1.element[1].w * _matrix2.element[3].y, _matrix1.element[1].x * _matrix2.element[0].z + _matrix1.element[1].y * _matrix2.element[1].z + _matrix1.element[1].z * _matrix2.element[2].z + _matrix1.element[1].w * _matrix2.element[3].z, _matrix1.element[1].x * _matrix2.element[0].w + _matrix1.element[1].y * _matrix2.element[1].w + _matrix1.element[1].z * _matrix2.element[2].w + _matrix1.element[1].w * _matrix2.element[3].w
         , _matrix1.element[2].x * _matrix2.element[0].x + _matrix1.element[2].y * _matrix2.element[1].x + _matrix1.element[2].z * _matrix2.element[2].x + _matrix1.element[2].w * _matrix2.element[3].x, _matrix1.element[2].x * _matrix2.element[0].y + _matrix1.element[2].y * _matrix2.element[1].y + _matrix1.element[2].z * _matrix2.element[2].y + _matrix1.element[2].w * _matrix2.element[3].y, _matrix1.element[2].x * _matrix2.element[0].z + _matrix1.element[2].y * _matrix2.element[1].z + _matrix1.element[2].z * _matrix2.element[2].z + _matrix1.element[2].w * _matrix2.element[3].z, _matrix1.element[2].x * _matrix2.element[0].w + _matrix1.element[2].y * _matrix2.element[1].w + _matrix1.element[2].z * _matrix2.element[2].w + _matrix1.element[2].w * _matrix2.element[3].w
         , _matrix1.element[3].x * _matrix2.element[0].x + _matrix1.element[3].y * _matrix2.element[1].x + _matrix1.element[3].z * _matrix2.element[2].x + _matrix1.element[3].w * _matrix2.element[3].x, _matrix1.element[3].x * _matrix2.element[0].y + _matrix1.element[3].y * _matrix2.element[1].y + _matrix1.element[3].z * _matrix2.element[2].y + _matrix1.element[3].w * _matrix2.element[3].y, _matrix1.element[3].x * _matrix2.element[0].z + _matrix1.element[3].y * _matrix2.element[1].z + _matrix1.element[3].z * _matrix2.element[2].z + _matrix1.element[3].w * _matrix2.element[3].z, _matrix1.element[3].x * _matrix2.element[0].w + _matrix1.element[3].y * _matrix2.element[1].w + _matrix1.element[3].z * _matrix2.element[2].w + _matrix1.element[3].w * _matrix2.element[3].w
     );
-}
-
-inline GQYMath::vec4 operator * (GQYMath::mat4 _matrix, GQYMath::vec4 _vector)
-{
-    return GQYMath::vec4(dot(_matrix.element[0], _vector), dot(_matrix.element[1], _vector), dot(_matrix.element[2], _vector), dot(_matrix.element[3], _vector));
 }
 /***************************** end mat4 **********************************/
 

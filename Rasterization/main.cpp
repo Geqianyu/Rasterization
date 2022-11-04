@@ -14,9 +14,9 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
         800,
         800
     );
-    Rasterization::createCamera(Eigen::Vector3d(4.6, 47.6, 75.0), Eigen::Vector3d(4.6, 47.6, 0.0), Eigen::Vector3d(0.0, 1.0, 0.0), 90.0, 1.0, 150.0);
-    Rasterization::loadObj("../obj/tails/tails.obj");
-    Rasterization::createLight(Eigen::Vector3d(0.2, 0.2, 0.2), Eigen::Vector3d(-1.0, -1.0, -1.0), Eigen::Vector3d(0.8, 0.8, 0.8));
+    Rasterization::create_camera(Point3(2.0, 45.0, 100.0), Point3(2.0, 45.0, 0.0), GQYMath::vec3(0.0, 1.0, 0.0), 75.0, 1.0, 1000.0);
+    Rasterization::load_obj("../obj/tails/tails.obj");
+    Rasterization::create_light(GQYMath::vec3(0.2, 0.2, 0.2), GQYMath::vec3(-1.0, -1.0, -1.0), GQYMath::vec3(0.8, 0.8, 0.8));
 
     Rasterization::show();
     Rasterization::shutDown();
