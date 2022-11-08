@@ -4,24 +4,23 @@
 
 
 # Rasterization
-## ÅäÖÃ
-- ²Ù×÷ÏµÍ³: win 10
+## é…ç½®
+- æ“ä½œç³»ç»Ÿ: win 10
 - IDE: vs2022
-- µÚÈý·½¿â: stb_image.h, ÓÃÓÚ¼ÓÔØÎÆÀí
-- ½çÃæÏÔÊ¾: ÀûÓÃ WINAPI
-- ¶àÏß³Ì: ÀûÓÃ omp
-- Ä£ÐÍ: Î»ÓÚÎÄ¼þ¼Ð obj ÖÐ
+- ç¬¬ä¸‰æ–¹åº“: stb_image.h, ç”¨äºŽåŠ è½½çº¹ç†
+- ç•Œé¢æ˜¾ç¤º: åˆ©ç”¨ WINAPI
+- å¤šçº¿ç¨‹: åˆ©ç”¨ omp
+- æ¨¡åž‹: ä½äºŽæ–‡ä»¶å¤¹ obj ä¸­
 
-## ËµÃ÷
-- ±¾ÏîÄ¿Íê³ÉÒ»¸öÈí¹âÕ¤»¯Æ÷£¬ÓÃC++Íê³É
-- °´×¡Êó±ê×ó¼ü¿ÉÒÔÐý×ªÄ£ÐÍ£¬°´×¡Êó±êÓÒ¼ü¿ÉÒÔÍÏ×§Ä£ÐÍ
-- ÏîÄ¿²ÉÓÃ blinphong ¹âÕÕÄ£ÐÍ
-- ¿ÉÖ±½ÓË«»÷ x64 ÎÄ¼þ¼ÐÏÂµÄ Rasterization.exe ÔËÐÐ³ÌÐò
+## è¯´æ˜Ž
+- æœ¬é¡¹ç›®å®Œæˆä¸€ä¸ªè½¯å…‰æ …åŒ–å™¨ï¼Œç”¨C++å®Œæˆ
+- æŒ‰ä½é¼ æ ‡å·¦é”®å¯ä»¥æ—‹è½¬æ¨¡åž‹ï¼ŒæŒ‰ä½é¼ æ ‡å³é”®å¯ä»¥æ‹–æ‹½æ¨¡åž‹
+- é¡¹ç›®é‡‡ç”¨ blinphong å…‰ç…§æ¨¡åž‹
 
-<center>1.¹âÕ¤»¯½á¹û</center>
+<center>1.å…‰æ …åŒ–ç»“æžœ</center>
 
-![¹âÕ¤»¯½á¹û][result1]
+![å…‰æ …åŒ–ç»“æžœ][result1]
 
-<center>2.µ÷Õû½Ç¶ÈºóµÄ½á¹û</center>
+<center>2.è°ƒæ•´è§’åº¦åŽçš„ç»“æžœ</center>
 
-![µ÷Õû½Ç¶ÈºóµÄ½á¹û][result2]
+![è°ƒæ•´è§’åº¦åŽçš„ç»“æžœ][result2]
