@@ -21,7 +21,6 @@ private:
     GQYMath::vec3 m_light_emission;
     Point3 m_camera_position;
     std::vector<Point4> m_gl_vertices;
-    bool* m_flag = nullptr;
     double* m_zBuffer = nullptr;
     BYTE* m_frameBuffer = nullptr;
     int m_width = 0;
@@ -32,13 +31,14 @@ public:
     Shader(Obj* _obj, int _width, int _height);
     ~Shader();
 
-    BYTE* shading(Camera& _camera, Light& _light);
+    BYTE* shading(Camera& _camera, Light& _light, GQYMath::mat4& _translate);
 
 private:
     // 私有函数
     void vertex_shading();
     void triangles_shading();
-    void rasterization_and_fragment_shading();
+    void rasterization(int& _index);
+    void setpixel(double& _alpha, double& _beta, double& _gama, int& _index, int& _x_position, int& _y_position);
     Color fragment_shader(Point3& _fragment_position, GQYMath::vec3& _fragment_normal, GQYMath::vec2& _fragment_texture, std::string& _material);
 };
 

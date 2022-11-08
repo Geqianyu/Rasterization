@@ -3,14 +3,6 @@
 
 #include "Math.h"
 
-enum class MOVE_DIRECTION
-{
-    FRONT = 0,
-    BACK,
-    LEFT,
-    RIGHT
-};
-
 /*
 * Camera类，保存相机相关信息
 */
@@ -19,6 +11,7 @@ class Camera
 private:
     // 变量
     Point3 m_position;                  // 相机坐标
+    Point3 m_lookat;                    // 看向的点，用于旋转相机时作为基点
     GQYMath::vec3 m_x;                  // 右方向
     GQYMath::vec3 m_z;                  // 看向的反方向
     GQYMath::vec3 m_y;                  // 上方向
@@ -30,9 +23,6 @@ private:
     double m_far = 10.0;                // 远平面
     double m_elevation_angle = 0.0;     // 仰角
     double m_yaw_angle = -90.0;         // 偏航角
-    bool m_first_mouse = true;          // 鼠标第一次进入窗口的标记
-    double m_last_x = 0.0;              // 鼠标上一次停留的X位置
-    double m_last_y = 0.0;              // 鼠标上一次停留的Y位置
 
 public:
     // 公有函数
@@ -42,16 +32,17 @@ public:
     ~Camera();
     void set_aspect(double _aspect);
     void change_fovy(double _step);
-    void move(MOVE_DIRECTION _move_direction);
-    void change_direction(double _position_x, double _position_y);
+    void rotate(double _yaw_angle, double _elevation_angle);
 
     inline GQYMath::mat4 view_matrix()
     {
+        generate_view_matrix();
         return m_view_matrix;
     }
 
     inline GQYMath::mat4 projection_matrix()
     {
+        generate_projection_matrix();
         return m_projection_matrix;
     }
 

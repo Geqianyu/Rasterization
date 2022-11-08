@@ -15,9 +15,6 @@ public:
     // 公有变量
     double m_Ns = 1.0;
     double m_Ni = 1.0;
-    double m_d = 1.0;
-    double m_Tr = 0.0;
-    GQYMath::vec3 m_Tf;
     GQYMath::vec3 m_Ka;
     GQYMath::vec3 m_Kd;
     GQYMath::vec3 m_Ks;

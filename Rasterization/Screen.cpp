@@ -1,5 +1,4 @@
-﻿#include <iostream>
-#include <vector>
+﻿#include <vector>
 #include <ctime>
 #include <cmath>
 
@@ -78,7 +77,7 @@ void Screen::initScreen(
     m_hdcMemory = CreateCompatibleDC(m_hdc);
 }
 
-void Screen::show(Shader* pShader, Camera* pCamera, Light* pLight)
+void Screen::show(Shader* pShader, Camera* pCamera, Light* pLight, GQYMath::mat4& _translate)
 {
     // 显示窗口
     ShowWindow(m_hwnd, SW_SHOWNORMAL);
@@ -86,7 +85,7 @@ void Screen::show(Shader* pShader, Camera* pCamera, Light* pLight)
     // 从消息队列中获取消息
     while (GetMessage(&m_message, NULL, 0, 0))
     {
-        BYTE* frameBuffer = pShader->shading(*pCamera, *pLight);
+        BYTE* frameBuffer = pShader->shading(*pCamera, *pLight, _translate);
         draw(frameBuffer);
         // 将 虚拟键 消息 转为 字符 消息
         TranslateMessage(&m_message);
@@ -116,14 +115,4 @@ void Screen::draw(BYTE* frameBuffer)
     BitBlt(m_hdc, 0, 0, m_width, m_height, m_hdcMemory, 0, 0, SRCCOPY);
     DeleteObject(hBmpMemory);
     DeleteObject(hPrevBmp);
-}
-
-int Screen::width()
-{
-    return m_width;
-}
-
-int Screen::height()
-{
-    return m_height;
 }

@@ -1,5 +1,4 @@
-﻿#include <iostream>
-#include <cmath>
+﻿#include <cmath>
 #include <omp.h>
 
 #include "Shader.h"
@@ -7,7 +6,6 @@
 Shader::Shader(Obj* _obj, int _width, int _height)
 {
     m_obj = _obj;
-    m_flag = new bool[_obj->m_meshs.size()];
     m_width = _width;
     m_height = _height;
     m_zBuffer = new double[_width * _height];
@@ -17,11 +15,6 @@ Shader::Shader(Obj* _obj, int _width, int _height)
 
 Shader::~Shader()
 {
-    if (m_flag != nullptr)
-    {
-        delete[] m_flag;
-        m_flag = nullptr;
-    }
     if (m_zBuffer != nullptr)
     {
         delete[] m_zBuffer;
@@ -34,12 +27,11 @@ Shader::~Shader()
     }
 }
 
-BYTE* Shader::shading(Camera& camera, Light& light)
+BYTE* Shader::shading(Camera& camera, Light& light, GQYMath::mat4& _translate)
 {
-    std::fill(m_flag, m_flag + m_obj->m_meshs.size(), true);
     std::fill(m_zBuffer, m_zBuffer + m_width * m_height, -FLT_MAX);
     std::fill(m_frameBuffer, m_frameBuffer + 3 * m_width * m_height, 0X00);
-    m_matrix = camera.projection_matrix() * camera.view_matrix();
+    m_matrix = _translate * camera.projection_matrix() * camera.view_matrix();
     m_camera_position = camera.position();
     m_light_ambient = light.m_ambient;
     m_light_direction = normalized_vector(light.m_direction);
@@ -50,9 +42,6 @@ BYTE* Shader::shading(Camera& camera, Light& light)
 
     // 三角形处理
     triangles_shading();
-
-    // 光栅化和片段处理
-    rasterization_and_fragment_shading();
 
     return m_frameBuffer;
 }
@@ -69,100 +58,81 @@ void Shader::vertex_shading()
 
 void Shader::triangles_shading()
 {
-    int vertices_size = static_cast<int>(m_obj->m_vs.size());
-#pragma omp parallel for
-    for (int i = 0; i < vertices_size; i++)
-    {
-        if (m_gl_vertices[i].x > m_gl_vertices[i].w || m_gl_vertices[i].x < -m_gl_vertices[i].w
-            || m_gl_vertices[i].y > m_gl_vertices[i].w || m_gl_vertices[i].y < -m_gl_vertices[i].w
-            || m_gl_vertices[i].z > m_gl_vertices[i].w || m_gl_vertices[i].z < -m_gl_vertices[i].w)
-        {
-            size_t len = m_obj->m_relating_faces[i].size();
-            for (size_t j = 0; j < len; j++)
-            {
-                m_flag[m_obj->m_relating_faces[i][j]] = false;
-            }
-        }
-    }
-
     // 背面剔除
     int triangles_size = static_cast<int>(m_obj->m_meshs.size());
 #pragma omp parallel for
     for (int i = 0; i < triangles_size; i++)
     {
-        if (m_flag[i])
+        Point3 first_point = m_obj->m_vs[m_obj->m_meshs[i].m_vertex_indeices[0]];
+        Point3 second_point = m_obj->m_vs[m_obj->m_meshs[i].m_vertex_indeices[1]];
+        Point3 third_point = m_obj->m_vs[m_obj->m_meshs[i].m_vertex_indeices[2]];
+        GQYMath::vec3 d = m_camera_position - first_point;
+        GQYMath::vec3 first_edge = second_point - first_point;
+        GQYMath::vec3 second_edge = third_point - first_point;
+        GQYMath::vec3 r = cross(first_edge, second_edge);
+        if (dot(r, d) > 0.0)
         {
-            Point3 first_point = m_obj->m_vs[m_obj->m_meshs[i].m_vertex_indeices[0]];
-            Point3 second_point = m_obj->m_vs[m_obj->m_meshs[i].m_vertex_indeices[1]];
-            Point3 third_point = m_obj->m_vs[m_obj->m_meshs[i].m_vertex_indeices[2]];
-            Point3 d = m_camera_position - first_point;
-            GQYMath::vec3 first_edge = second_point - first_point;
-            GQYMath::vec3 second_edge = third_point - first_point;
-            GQYMath::vec3 r = cross(first_edge, second_edge);
-            if (dot(r, d) < 0.0)
+            // 光栅化
+            rasterization(i);
+        }
+    }
+}
+
+void Shader::rasterization(int& _index)
+{
+    Point4 first_point = m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[0]];
+    Point4 second_point = m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[1]];
+    Point4 third_point = m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[2]];
+    Point3 A((first_point.x / first_point.w + 1.0) / 2.0 * m_width, (first_point.y / first_point.w + 1.0) / 2.0 * m_height, 0.0);
+    Point3 B((second_point.x / second_point.w + 1.0) / 2.0 * m_width, (second_point.y / second_point.w + 1.0) / 2.0 * m_height, 0.0);
+    Point3 C((third_point.x / third_point.w + 1.0) / 2.0 * m_width, (third_point.y / third_point.w + 1.0) / 2.0 * m_height, 0.0);
+    GQYMath::vec3 AB = B - A;
+    GQYMath::vec3 BC = C - B;
+    GQYMath::vec3 CA = A - C;
+    int top = min(m_height - 1, (int)(max(A.y, max(B.y, C.y))));
+    int bottom = max(0, (int)(min(A.y, min(B.y, C.y))));
+    int right = min(m_width - 1, (int)(max(A.x, max(B.x, C.x))));
+    int left = max(0, (int)(min(A.x, min(B.x, C.x))));
+#pragma omp parallel for
+    for (int j = bottom; j <= top; j++)
+    {
+        for (int k = left; k <= right; k++)
+        {
+            Point3 P((double)k + 0.5, (double)j + 0.5, 0.0);
+            GQYMath::vec3 AP = P - A;
+            GQYMath::vec3 BP = P - B;
+            GQYMath::vec3 CP = P - C;
+            GQYMath::vec3 AB_cross_AP = cross(AB, AP);
+            GQYMath::vec3 BC_cross_BP = cross(BC, BP);
+            GQYMath::vec3 CA_cross_CP = cross(CA, CP);
+            if (AB_cross_AP.z * BC_cross_BP.z > 0.0 && AB_cross_AP.z * CA_cross_CP.z > 0.0 && BC_cross_BP.z * CA_cross_CP.z > 0.0)
             {
-                m_flag[i] = false;
+                double alpha = AB_cross_AP.length();
+                double beta = BC_cross_BP.length();
+                double gama = CA_cross_CP.length();
+                double sum = alpha + beta + gama;
+                double first_rate = beta / sum;
+                double second_rate = gama / sum;
+                double third_rate = alpha / sum;
+                setpixel(first_rate, second_rate, third_rate, _index, k, j);
             }
         }
     }
 }
 
-void Shader::rasterization_and_fragment_shading()
+void Shader::setpixel(double& _alpha, double& _beta, double& _gama, int& _index, int& _x_position, int& _y_position)
 {
-    size_t triangles_size = static_cast<int>(m_obj->m_meshs.size());
-    for (size_t i = 0; i < triangles_size; i++)
+    double fragment_depth = _alpha * m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[0]].z + _beta * m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[1]].z + _gama * m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[2]].z;
+    if (fragment_depth > m_zBuffer[_y_position * m_width + _x_position])
     {
-        if (m_flag[i])
-        {
-            Point4 first_point = m_gl_vertices[m_obj->m_meshs[i].m_vertex_indeices[0]];
-            Point4 second_point = m_gl_vertices[m_obj->m_meshs[i].m_vertex_indeices[1]];
-            Point4 third_point = m_gl_vertices[m_obj->m_meshs[i].m_vertex_indeices[2]];
-            Point3 A((first_point.x / first_point.w + 1.0) / 2.0 * m_width, (first_point.y / first_point.w + 1.0) / 2.0 * m_height, 0.0);
-            Point3 B((second_point.x / second_point.w + 1.0) / 2.0 * m_width, (second_point.y / second_point.w + 1.0) / 2.0 * m_height, 0.0);
-            Point3 C((third_point.x / third_point.w + 1.0) / 2.0 * m_width, (third_point.y / third_point.w + 1.0) / 2.0 * m_height, 0.0);
-            GQYMath::vec3 AB = B - A;
-            GQYMath::vec3 BC = C - B;
-            GQYMath::vec3 CA = A - C;
-            int top = (int)(max(A.y, max(B.y, C.y)));
-            int bottom = (int)(min(A.y, min(B.y, C.y)));
-            int right = (int)(max(A.x, max(B.x, C.x)));
-            int left = (int)(min(A.x, min(B.x, C.x)));
-#pragma omp parallel for
-            for (int j = bottom; j <= top; j++)
-            {
-                for (int k = left; k <= right; k++)
-                {
-                    Point3 P((double)k + 0.5, (double)j + 0.5, 0.0);
-                    GQYMath::vec3 AP = P - A;
-                    GQYMath::vec3 BP = P - B;
-                    GQYMath::vec3 CP = P - C;
-                    GQYMath::vec3 AB_cross_AP = cross(AB, AP);
-                    GQYMath::vec3 BC_cross_BP = cross(BC, BP);
-                    GQYMath::vec3 CA_cross_CP = cross(CA, CP);
-                    if (AB_cross_AP.z * BC_cross_BP.z > 0.0 && AB_cross_AP.z * CA_cross_CP.z > 0.0 && BC_cross_BP.z * CA_cross_CP.z > 0.0)
-                    {
-                        double alpha = AB_cross_AP.length();
-                        double beta = BC_cross_BP.length();
-                        double gama = CA_cross_CP.length();
-                        double sum = alpha + beta + gama;
-                        double first_rate = beta / sum;
-                        double second_rate = gama / sum;
-                        double third_rate = alpha / sum;
-                        Point3 fragment_position = first_rate * m_obj->m_vs[m_obj->m_meshs[i].m_vertex_indeices[0]] + second_rate * m_obj->m_vs[m_obj->m_meshs[i].m_vertex_indeices[1]] + third_rate * m_obj->m_vs[m_obj->m_meshs[i].m_vertex_indeices[2]];
-                        if (fragment_position.z > m_zBuffer[j * m_width + k])
-                        {
-                            GQYMath::vec3 fragment_normal = first_rate * m_obj->m_vns[m_obj->m_meshs[i].m_normal_indeices[0]] + second_rate * m_obj->m_vns[m_obj->m_meshs[i].m_normal_indeices[1]] + third_rate * m_obj->m_vns[m_obj->m_meshs[i].m_normal_indeices[2]];
-                            GQYMath::vec2 fragment_texture = first_rate * m_obj->m_vts[m_obj->m_meshs[i].m_texture_indeices[0]] + second_rate * m_obj->m_vts[m_obj->m_meshs[i].m_texture_indeices[1]] + third_rate * m_obj->m_vts[m_obj->m_meshs[i].m_texture_indeices[2]];
-                            m_zBuffer[j * m_width + k] = fragment_position.z;
-                            Color color = fragment_shader(fragment_position, fragment_normal, fragment_texture, m_obj->m_meshs[i].m_material);
-                            m_frameBuffer[3 * j * m_width + 3 * k] = (BYTE)(color.b * 255);
-                            m_frameBuffer[3 * j * m_width + 3 * k + 1] = (BYTE)(color.g * 255);
-                            m_frameBuffer[3 * j * m_width + 3 * k + 2] = (BYTE)(color.r * 255);
-                        }
-                    }
-                }
-            }
-        }
+        m_zBuffer[_y_position * m_width + _x_position] = fragment_depth;
+        Point3 fragment_position = _alpha * m_obj->m_vs[m_obj->m_meshs[_index].m_vertex_indeices[0]] + _beta * m_obj->m_vs[m_obj->m_meshs[_index].m_vertex_indeices[1]] + _gama * m_obj->m_vs[m_obj->m_meshs[_index].m_vertex_indeices[2]];
+        GQYMath::vec3 fragment_normal = _alpha * m_obj->m_vns[m_obj->m_meshs[_index].m_normal_indeices[0]] + _beta * m_obj->m_vns[m_obj->m_meshs[_index].m_normal_indeices[1]] + _gama * m_obj->m_vns[m_obj->m_meshs[_index].m_normal_indeices[2]];
+        GQYMath::vec2 fragment_texture = _alpha * m_obj->m_vts[m_obj->m_meshs[_index].m_texture_indeices[0]] + _beta * m_obj->m_vts[m_obj->m_meshs[_index].m_texture_indeices[1]] + _gama * m_obj->m_vts[m_obj->m_meshs[_index].m_texture_indeices[2]];
+        Color color = fragment_shader(fragment_position, fragment_normal, fragment_texture, m_obj->m_meshs[_index].m_material);
+        m_frameBuffer[3 * _y_position * m_width + 3 * _x_position] = (BYTE)(color.b * 255);
+        m_frameBuffer[3 * _y_position * m_width + 3 * _x_position + 1] = (BYTE)(color.g * 255);
+        m_frameBuffer[3 * _y_position * m_width + 3 * _x_position + 2] = (BYTE)(color.r * 255);
     }
 }
 

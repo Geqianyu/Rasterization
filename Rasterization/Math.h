@@ -1,7 +1,6 @@
 ﻿#ifndef _GQY_MATH_H_
 #define _GQY_MATH_H_
 
-#include <iostream>
 #include <cmath>
 
 /*
@@ -316,12 +315,6 @@ namespace GQYMath
 
 
 /******************************* vec2 ************************************/
-inline std::ostream& operator << (std::ostream& _out, const GQYMath::vec2& _vector)
-{
-    _out << _vector.x << " " << _vector.y;
-    return _out;
-}
-
 inline GQYMath::vec2 normalized_vector(const GQYMath::vec2& _vector)
 {
     double length = _vector.length();
@@ -366,12 +359,6 @@ inline double dot(const GQYMath::vec2& _vector1, const GQYMath::vec2& _vector2)
 
 
 /******************************* vec3 ************************************/
-inline std::ostream& operator << (std::ostream& _out, const GQYMath::vec3& _vector)
-{
-    _out << _vector.x << " " << _vector.y << " " << _vector.z;
-    return _out;
-}
-
 inline GQYMath::vec3 normalized_vector(const GQYMath::vec3& _vector)
 {
     double length = _vector.length();
@@ -421,12 +408,6 @@ inline GQYMath::vec3 cross(const GQYMath::vec3& _vector1, const GQYMath::vec3& _
 
 
 /******************************* vec4 ************************************/
-inline std::ostream& operator << (std::ostream& _out, const GQYMath::vec4& _vector)
-{
-    _out << _vector.x << " " << _vector.y << " " << _vector.z << " " << _vector.w;
-    return _out;
-}
-
 inline GQYMath::vec4 operator + (const GQYMath::vec4& _vector1, const GQYMath::vec4& _vector2)
 {
     return GQYMath::vec4(_vector1.x + _vector2.x, _vector1.y + _vector2.y, _vector1.z + _vector2.z, _vector1.w + _vector2.w);
@@ -465,14 +446,6 @@ inline double dot(const GQYMath::vec4& _vector1, const GQYMath::vec4& _vector2)
 
 
 /******************************* mat3 ************************************/
-inline std::ostream& operator << (std::ostream& _out, const GQYMath::mat3& _matrix)
-{
-    _out << _matrix.element[0].x << " " << _matrix.element[0].y << " " << _matrix.element[0].z << "\n"
-        << _matrix.element[1].x << " " << _matrix.element[1].y << " " << _matrix.element[1].z << "\n"
-        << _matrix.element[2].x << " " << _matrix.element[2].y << " " << _matrix.element[2].z;
-    return _out;
-}
-
 inline GQYMath::mat3 operator + (GQYMath::mat3 _matrix1, GQYMath::mat3 _matrix2)
 {
     return GQYMath::mat3(_matrix1.element[0] + _matrix2.element[0], _matrix1.element[1] + _matrix2.element[1], _matrix1.element[2] + _matrix2.element[2]);
@@ -495,15 +468,6 @@ inline GQYMath::mat3 operator * (GQYMath::mat3 _matrix1, GQYMath::mat3 _matrix2)
 
 
 /******************************* mat4 ************************************/
-inline std::ostream& operator << (std::ostream& _out, const GQYMath::mat4& _matrix)
-{
-    _out << _matrix.element[0].x << " " << _matrix.element[0].y << " " << _matrix.element[0].z << " " << _matrix.element[0].w << "\n"
-        << _matrix.element[1].x << " " << _matrix.element[1].y << " " << _matrix.element[1].z << " " << _matrix.element[1].w << "\n"
-        << _matrix.element[2].x << " " << _matrix.element[2].y << " " << _matrix.element[2].z << " " << _matrix.element[2].w << "\n"
-        << _matrix.element[3].x << " " << _matrix.element[3].y << " " << _matrix.element[3].z << " " << _matrix.element[3].w << "\n";
-    return _out;
-}
-
 inline GQYMath::mat4 operator + (GQYMath::mat4 _matrix1, GQYMath::mat4 _matrix2)
 {
     return GQYMath::mat4(_matrix1.element[0] + _matrix2.element[0], _matrix1.element[1] + _matrix2.element[1], _matrix1.element[2] + _matrix2.element[2], _matrix1.element[3] + _matrix2.element[3]);

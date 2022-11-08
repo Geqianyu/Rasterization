@@ -37,14 +37,22 @@ public:
         HINSTANCE hPrevInstance,
         PSTR lpCmdLine,
         INT nCmdShow,
-        WNDPROC callBackFunction,                                     // 回到函数
-        LPCWSTR windowName,                                           // 窗口名字
-        INT windowWidth,                                              // 窗口宽度
-        INT windowHeight                                              // 窗口高度
-    );                                                                // 初始化窗口
-    void show(Shader* pShader, Camera* pCamera, Light* pLight);       // 显示窗口
-    int width();
-    int height();
+        WNDPROC callBackFunction,                                                                                       // 回到函数
+        LPCWSTR windowName,                                                                                             // 窗口名字
+        INT windowWidth,                                                                                                // 窗口宽度
+        INT windowHeight                                                                                                // 窗口高度
+    );                                                                                                                  // 初始化窗口
+    void show(Shader* pShader, Camera* pCamera, Light* pLight, GQYMath::mat4& _translate);      // 显示窗口
+
+    inline int width()
+    {
+        return m_width;
+    }
+
+    inline int height()
+    {
+        return m_height;
+    }
 };
 
 #endif // !_GQY_SCREEN_H_

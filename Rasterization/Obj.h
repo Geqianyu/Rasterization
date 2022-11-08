@@ -21,7 +21,6 @@ public:
     std::vector<GQYMath::vec2> m_vts;                       // 顶点纹理坐标
     std::vector<Mesh> m_meshs;                              // 保存三角形的索引
     std::map<std::string, Material> m_materials;            // 材质
-    std::map<int, std::vector<int>> m_relating_faces;        // 保存与某一顶点相关的三角形
 
 public:
     // 公有函数

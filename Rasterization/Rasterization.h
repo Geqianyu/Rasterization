@@ -27,6 +27,10 @@ namespace Rasterization
     Shader* m_pShader = nullptr;                                            // 着色器指针
     double m_aspect = 1.0;                                                  // 显示窗口的 宽高 比
     LPPOINT m_point = new POINT();                                          // 保存鼠标移动时的鼠标值
+    LPPOINT m_last_point = new POINT();                                     // 保存鼠标上一次的位置
+    bool m_is_left = false;                                                 // 鼠标左键按下
+    bool m_is_right = false;                                                // 鼠标右键按下
+    GQYMath::mat4 m_translate;                                              // 在窗口的平移矩阵
 
     void createScreen(                                                                                                                      // 创建窗口
         HINSTANCE hInstance,
@@ -66,6 +70,10 @@ void Rasterization::createScreen(
         windowHeight
     );
     m_aspect = (float)windowHeight / (float)windowWidth;
+    m_translate = GQYMath::mat4(1.0, 0.0, 0.0, 0.0
+        , 0.0, 1.0, 0.0, 0.0
+        , 0.0, 0.0, 1.0, 0.0
+        , 0.0, 0.0, 0.0, 1.0);
 }
 
 void Rasterization::load_obj(std::string _obj_file_path)
@@ -86,7 +94,7 @@ void Rasterization::create_light(GQYMath::vec3 _ambient, GQYMath::vec3 _directio
 void Rasterization::show()
 {
     m_pShader = new Shader(&m_obj, m_screen.width(), m_screen.height());
-    m_screen.show(m_pShader, &m_camera, &m_light);
+    m_screen.show(m_pShader, &m_camera, &m_light, m_translate);
 }
 
 void Rasterization::shutDown()
@@ -119,28 +127,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             // 销毁窗口 但是不结束进程, 而是发送另一个消息 WM_DESTROY
             DestroyWindow(hwnd);
             break;
-        case 87:
-            // 按下 W 键，相机向前移动
-            Rasterization::m_camera.move(MOVE_DIRECTION::FRONT);
-            break;
-        case 65:
-            // 按下 A 键，相机向左移动
-            Rasterization::m_camera.move(MOVE_DIRECTION::LEFT);
-            break;
-        case 83:
-            // 按下 S 键，相机向后移动
-            Rasterization::m_camera.move(MOVE_DIRECTION::BACK);
-            break;
-        case 68:
-            // 按下 D 键，相机向右移动
-            Rasterization::m_camera.move(MOVE_DIRECTION::RIGHT);
-            break;
         }
         break;
     case WM_MOUSEMOVE:
-        // 鼠标移动，调整摄像机的朝向
-        GetCursorPos(Rasterization::m_point);
-        Rasterization::m_camera.change_direction(Rasterization::m_point->x, Rasterization::m_point->y);
+        if (Rasterization::m_is_left)
+        {
+            GetCursorPos(Rasterization::m_point);
+            Rasterization::m_camera.rotate(static_cast<double>(Rasterization::m_point->x - Rasterization::m_last_point->x), static_cast<double>(Rasterization::m_point->y - Rasterization::m_last_point->y));
+            GetCursorPos(Rasterization::m_last_point);
+        }
+        else if (Rasterization::m_is_right)
+        {
+            GetCursorPos(Rasterization::m_point);
+            Rasterization::m_translate.element[0].w += 2.0 * static_cast<double>(Rasterization::m_point->x - Rasterization::m_last_point->x) / Rasterization::m_screen.width();
+            Rasterization::m_translate.element[1].w -= 2.0 * static_cast<double>(Rasterization::m_point->y - Rasterization::m_last_point->y) / Rasterization::m_screen.height();;
+            GetCursorPos(Rasterization::m_last_point);
+        }
         break;
     case WM_MOUSEWHEEL:
         if ((SHORT)HIWORD(wParam) > 0)
@@ -151,6 +153,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             Rasterization::m_camera.change_fovy(1.0f);
         }
+        break;
+    case WM_LBUTTONDOWN:
+        Rasterization::m_is_left = true;
+        Rasterization::m_is_right = false;
+        GetCursorPos(Rasterization::m_last_point);
+        break;
+    case WM_RBUTTONDOWN:
+        Rasterization::m_is_left = false;
+        Rasterization::m_is_right = true;
+        GetCursorPos(Rasterization::m_last_point);
+        break;
+    case WM_LBUTTONUP:
+        Rasterization::m_is_left = false;
+        break;
+    case WM_RBUTTONUP:
+        Rasterization::m_is_right = false;
         break;
     default:
         break;

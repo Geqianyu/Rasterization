@@ -1,6 +1,4 @@
-﻿
-#include <iostream>
-#include <fstream>
+﻿#include <fstream>
 #include <cmath>
 
 #include "Obj.h"
@@ -17,7 +15,6 @@ Obj::Obj(const Obj& _obj)
     m_vts = _obj.m_vts;
     m_meshs = _obj.m_meshs;
     m_materials = _obj.m_materials;
-    m_relating_faces = _obj.m_relating_faces;
 }
 
 Obj::Obj(std::string _file_path)
@@ -37,7 +34,6 @@ void Obj::load_obj(std::string _file_path)
     obj_file.open(_file_path, std::ios::in);
     if (!obj_file.is_open())
     {
-        std::cout << ".obj 文件打开失败: " << _file_path << std::endl;
         exit(-2);
     }
 
@@ -83,22 +79,18 @@ void Obj::load_obj(std::string _file_path)
         }
         else if (str == "f")
         {
-            Mesh tempMesh;
+            Mesh temp_mesh;
             for (int i = 0; i < 3; i++)
             {
                 obj_file >> str;
                 size_t first_index = str.find('/');
                 size_t second_index = str.find_last_of('/');
-                tempMesh.m_vertex_indeices[i] = std::stoi(str.substr(0, first_index)) - 1;
-                tempMesh.m_texture_indeices[i] = std::stoi(str.substr(first_index + 1, second_index - first_index - 1)) - 1;
-                tempMesh.m_normal_indeices[i] = std::stoi(str.substr(second_index + 1, str.length() - second_index - 1)) - 1;
+                temp_mesh.m_vertex_indeices[i] = std::stoi(str.substr(0, first_index)) - 1;
+                temp_mesh.m_texture_indeices[i] = std::stoi(str.substr(first_index + 1, second_index - first_index - 1)) - 1;
+                temp_mesh.m_normal_indeices[i] = std::stoi(str.substr(second_index + 1, str.length() - second_index - 1)) - 1;
             }
-            tempMesh.m_material = current_material;
-            m_meshs.push_back(tempMesh);
-            int meshIndex = m_meshs.size() - 1;
-            m_relating_faces[m_meshs[meshIndex].m_vertex_indeices[0]].push_back(meshIndex);
-            m_relating_faces[m_meshs[meshIndex].m_vertex_indeices[1]].push_back(meshIndex);
-            m_relating_faces[m_meshs[meshIndex].m_vertex_indeices[2]].push_back(meshIndex);
+            temp_mesh.m_material = current_material;
+            m_meshs.push_back(temp_mesh);
         }
         else if (str == "mtllib")
         {
@@ -120,7 +112,6 @@ void Obj::load_mtl(std::string _file_path)
     mtl_file.open(_file_path, std::ios::in);
     if (!mtl_file.is_open())
     {
-        std::cout << ".mtl 文件打开失败: " << _file_path << std::endl;
         exit(-2);
     }
 
@@ -135,26 +126,6 @@ void Obj::load_mtl(std::string _file_path)
         {
             mtl_file >> str;
             m_materials[current_material].m_Ni = std::stod(str);
-        }
-        else if (str == "d")
-        {
-            mtl_file >> str;
-            m_materials[current_material].m_d = std::stod(str);
-        }
-        else if (str == "Tr")
-        {
-            mtl_file >> str;
-            m_materials[current_material].m_Tr = std::stod(str);
-        }
-        else if (str == "Tf")
-        {
-            double temp_Tf[3];
-            for (int i = 0; i < 3; i++)
-            {
-                mtl_file >> str;
-                temp_Tf[i] = std::stod(str);
-            }
-            m_materials[current_material].m_Tf = GQYMath::vec3(temp_Tf[0], temp_Tf[1], temp_Tf[2]);
         }
         else if (str == "Ka")
         {
