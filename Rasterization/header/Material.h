@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "Math.h"
-#include "Texture.h"
+#include "../header/Math.h"
+#include "../header/Texture.h"
 
 /*
 Material 类，用于存储材质相关信息

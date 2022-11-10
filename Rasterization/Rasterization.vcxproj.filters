@@ -15,69 +15,69 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="source\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Screen.cpp">
+    <ClCompile Include="source\Screen.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
+    <ClCompile Include="source\Mesh.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="source\Camera.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
+    <ClCompile Include="source\Texture.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Material.cpp">
+    <ClCompile Include="source\Material.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Obj.cpp">
+    <ClCompile Include="source\Obj.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
+    <ClCompile Include="source\Shader.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Light.cpp">
+    <ClCompile Include="source\Light.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Math.cpp">
+    <ClCompile Include="source\Math.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Screen.h">
+    <ClInclude Include="header\Screen.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
+    <ClInclude Include="header\Mesh.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="header\Camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Rasterization.h">
+    <ClInclude Include="header\Rasterization.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image.h">
+    <ClInclude Include="header\stb_image.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="header\Texture.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
+    <ClInclude Include="header\Material.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Obj.h">
+    <ClInclude Include="header\Obj.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
+    <ClInclude Include="header\Shader.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Light.h">
+    <ClInclude Include="header\Light.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Math.h">
+    <ClInclude Include="header\Math.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

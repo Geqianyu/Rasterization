@@ -1,7 +1,7 @@
 ﻿#include <fstream>
 #include <cmath>
 
-#include "Obj.h"
+#include "../header/Obj.h"
 
 Obj::Obj()
 {

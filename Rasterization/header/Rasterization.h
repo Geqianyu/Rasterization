@@ -4,12 +4,12 @@
 #include <string>
 #include <cmath>
 
-#include "Math.h"
-#include "Screen.h"
-#include "Obj.h"
-#include "Camera.h"
-#include "Shader.h"
-#include "Light.h"
+#include "../header/Math.h"
+#include "../header/Screen.h"
+#include "../header/Obj.h"
+#include "../header/Camera.h"
+#include "../header/Shader.h"
+#include "../header/Light.h"
 
 /*
 * 光栅化空间

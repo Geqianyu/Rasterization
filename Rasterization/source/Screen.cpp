@@ -2,7 +2,7 @@
 #include <ctime>
 #include <cmath>
 
-#include "Screen.h"
+#include "../header/Screen.h"
 
 Screen::Screen()
 {

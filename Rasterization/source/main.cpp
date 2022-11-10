@@ -1,7 +1,7 @@
 ﻿
 #include <windows.h>
 
-#include "Rasterization.h"
+#include "../header/Rasterization.h"
 
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {

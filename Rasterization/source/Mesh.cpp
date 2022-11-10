@@ -1,5 +1,5 @@
 ﻿
-#include "Mesh.h"
+#include "../header/Mesh.h"
 
 Mesh::Mesh()
 {

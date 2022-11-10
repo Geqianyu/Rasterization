@@ -4,7 +4,7 @@
 #include <windows.h>
 #include <string>
 
-#include "Math.h"
+#include "../header/Math.h"
 
 /*
 * Texture 类，保存纹理

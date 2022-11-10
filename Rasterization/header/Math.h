@@ -2,12 +2,25 @@
 #define _GQY_MATH_H_
 
 #include <cmath>
+#include <limits>
 
 /*
 * Math 库，包括 vec2, vec3, vec4, mat3, mat4
 */
 namespace GQYMath
 {
+    // 圆周率 PI
+    const double PI = std::asin(1.0) * 2.0;
+
+    // 浮点数的极限值
+    const double infinity = std::numeric_limits<double>::infinity();
+    const double negative_infinity = -std::numeric_limits<double>::infinity();
+
+    inline double degree_to_radians(double degree)
+    {
+        return degree * PI / 180.0;
+    }
+
     class vec2
     {
     public:

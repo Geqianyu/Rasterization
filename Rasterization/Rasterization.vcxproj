@@ -83,6 +83,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\intermedia\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -143,29 +145,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Light.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Material.cpp" />
-    <ClCompile Include="Math.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Obj.cpp" />
-    <ClCompile Include="Screen.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="source\Camera.cpp" />
+    <ClCompile Include="source\Light.cpp" />
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\Material.cpp" />
+    <ClCompile Include="source\Math.cpp" />
+    <ClCompile Include="source\Mesh.cpp" />
+    <ClCompile Include="source\Obj.cpp" />
+    <ClCompile Include="source\Screen.cpp" />
+    <ClCompile Include="source\Shader.cpp" />
+    <ClCompile Include="source\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Light.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Math.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Obj.h" />
-    <ClInclude Include="Rasterization.h" />
-    <ClInclude Include="Screen.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="Texture.h" />
+    <ClInclude Include="header\Camera.h" />
+    <ClInclude Include="header\Light.h" />
+    <ClInclude Include="header\Material.h" />
+    <ClInclude Include="header\Math.h" />
+    <ClInclude Include="header\Mesh.h" />
+    <ClInclude Include="header\Obj.h" />
+    <ClInclude Include="header\Rasterization.h" />
+    <ClInclude Include="header\Screen.h" />
+    <ClInclude Include="header\Shader.h" />
+    <ClInclude Include="header\stb_image.h" />
+    <ClInclude Include="header\Texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

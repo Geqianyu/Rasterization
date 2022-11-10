@@ -1,5 +1,5 @@
 ﻿
-#include "Light.h"
+#include "../header/Light.h"
 
 Light::Light()
 {

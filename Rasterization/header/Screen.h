@@ -3,9 +3,9 @@
 
 #include <windows.h>
 
-#include "Shader.h"
-#include "Camera.h"
-#include "Light.h"
+#include "../header/Shader.h"
+#include "../header/Camera.h"
+#include "../header/Light.h"
 
 /*
 * 屏幕类，最终图像会显示在屏幕上

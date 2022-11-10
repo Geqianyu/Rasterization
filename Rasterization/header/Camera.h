@@ -1,7 +1,7 @@
 ﻿#ifndef _GQY_CAMERA_H_
 #define _GQY_CAMERA_H_
 
-#include "Math.h"
+#include "../header/Math.h"
 
 /*
 * Camera类，保存相机相关信息

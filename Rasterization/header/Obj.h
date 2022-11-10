@@ -5,9 +5,9 @@
 #include <map>
 #include <string>
 
-#include "Math.h"
-#include "Mesh.h"
-#include "Material.h"
+#include "../header/Math.h"
+#include "../header/Mesh.h"
+#include "../header/Material.h"
 
 /*
 Obj 类，用于加载模型获取模型相关的数据

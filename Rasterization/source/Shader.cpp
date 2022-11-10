@@ -1,7 +1,7 @@
 ﻿#include <cmath>
 #include <omp.h>
 
-#include "Shader.h"
+#include "../header/Shader.h"
 
 Shader::Shader(Obj* _obj, int _width, int _height)
 {
@@ -29,7 +29,7 @@ Shader::~Shader()
 
 BYTE* Shader::shading(Camera& camera, Light& light, GQYMath::mat4& _translate)
 {
-    std::fill(m_zBuffer, m_zBuffer + m_width * m_height, -FLT_MAX);
+    std::fill(m_zBuffer, m_zBuffer + m_width * m_height, GQYMath::negative_infinity);
     std::fill(m_frameBuffer, m_frameBuffer + 3 * m_width * m_height, 0X00);
     m_matrix = _translate * camera.projection_matrix() * camera.view_matrix();
     m_camera_position = camera.position();

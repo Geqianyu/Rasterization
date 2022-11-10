@@ -1,7 +1,7 @@
 ﻿#ifndef _GQY_LIGHT_H_
 #define _GQY_LIGHT_H_
 
-#include "Math.h"
+#include "../header/Math.h"
 
 /*
 * Light 类，光源的信息

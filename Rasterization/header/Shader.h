@@ -2,10 +2,10 @@
 #define _GQY_SHADER_H_
 
 #include <Windows.h>
-#include "Math.h"
-#include "obj.h"
-#include "Camera.h"
-#include "Light.h"
+#include "../header/Math.h"
+#include "../header/Obj.h"
+#include "../header/Camera.h"
+#include "../header/Light.h"
 
 /*
 Shader 类，模拟渲染管线
