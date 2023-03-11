@@ -49,7 +49,7 @@ BYTE* Shader::shading(Camera& camera, Light& light, GQYMath::mat4& _translate)
 void Shader::vertex_shading()
 {
     int vertices_size = static_cast<int>(m_obj->m_vs.size());
-#pragma omp parallel for
+    #pragma omp parallel for
     for (int i = 0; i < vertices_size; i++)
     {
         m_gl_vertices[i] = m_matrix * m_obj->m_vs[i];
@@ -60,7 +60,7 @@ void Shader::triangles_shading()
 {
     // 背面剔除
     int triangles_size = static_cast<int>(m_obj->m_meshs.size());
-#pragma omp parallel for
+    #pragma omp parallel for
     for (int i = 0; i < triangles_size; i++)
     {
         Point3 first_point = m_obj->m_vs[m_obj->m_meshs[i].m_vertex_indeices[0]];
@@ -93,7 +93,7 @@ void Shader::rasterization(int& _index)
     int bottom = max(0, (int)(min(A.y, min(B.y, C.y))));
     int right = min(m_width - 1, (int)(max(A.x, max(B.x, C.x))));
     int left = max(0, (int)(min(A.x, min(B.x, C.x))));
-#pragma omp parallel for
+    #pragma omp parallel for
     for (int j = bottom; j <= top; j++)
     {
         for (int k = left; k <= right; k++)
@@ -122,13 +122,17 @@ void Shader::rasterization(int& _index)
 
 void Shader::setpixel(double& _alpha, double& _beta, double& _gama, int& _index, int& _x_position, int& _y_position)
 {
-    double fragment_depth = _alpha * m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[0]].z + _beta * m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[1]].z + _gama * m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[2]].z;
+    // 中心坐标矫正
+    double coeff = 1 / (_alpha / m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[0]].w + _beta / m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[1]].w + _gama / m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[2]].w);
+    double bar[3]{ _alpha * coeff / m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[0]].w, _beta * coeff / m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[1]].w, _gama * coeff / m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[2]].w };
+    double fragment_depth = bar[0] * m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[0]].z + bar[1] * m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[1]].z + bar[2] * m_gl_vertices[m_obj->m_meshs[_index].m_vertex_indeices[2]].z;
     if (fragment_depth > m_zBuffer[_y_position * m_width + _x_position])
     {
         m_zBuffer[_y_position * m_width + _x_position] = fragment_depth;
-        Point3 fragment_position = _alpha * m_obj->m_vs[m_obj->m_meshs[_index].m_vertex_indeices[0]] + _beta * m_obj->m_vs[m_obj->m_meshs[_index].m_vertex_indeices[1]] + _gama * m_obj->m_vs[m_obj->m_meshs[_index].m_vertex_indeices[2]];
-        GQYMath::vec3 fragment_normal = _alpha * m_obj->m_vns[m_obj->m_meshs[_index].m_normal_indeices[0]] + _beta * m_obj->m_vns[m_obj->m_meshs[_index].m_normal_indeices[1]] + _gama * m_obj->m_vns[m_obj->m_meshs[_index].m_normal_indeices[2]];
-        GQYMath::vec2 fragment_texture = _alpha * m_obj->m_vts[m_obj->m_meshs[_index].m_texture_indeices[0]] + _beta * m_obj->m_vts[m_obj->m_meshs[_index].m_texture_indeices[1]] + _gama * m_obj->m_vts[m_obj->m_meshs[_index].m_texture_indeices[2]];
+
+        Point3 fragment_position = bar[0] * m_obj->m_vs[m_obj->m_meshs[_index].m_vertex_indeices[0]] + bar[1] * m_obj->m_vs[m_obj->m_meshs[_index].m_vertex_indeices[1]] + bar[2] * m_obj->m_vs[m_obj->m_meshs[_index].m_vertex_indeices[2]];
+        GQYMath::vec3 fragment_normal = bar[0] * m_obj->m_vns[m_obj->m_meshs[_index].m_normal_indeices[0]] + bar[1] * m_obj->m_vns[m_obj->m_meshs[_index].m_normal_indeices[1]] + bar[2] * m_obj->m_vns[m_obj->m_meshs[_index].m_normal_indeices[2]];
+        GQYMath::vec2 fragment_texture = bar[0] * m_obj->m_vts[m_obj->m_meshs[_index].m_texture_indeices[0]] + bar[1] * m_obj->m_vts[m_obj->m_meshs[_index].m_texture_indeices[1]] + bar[2] * m_obj->m_vts[m_obj->m_meshs[_index].m_texture_indeices[2]];
         Color color = fragment_shader(fragment_position, fragment_normal, fragment_texture, m_obj->m_meshs[_index].m_material);
         m_frameBuffer[3 * _y_position * m_width + 3 * _x_position] = (BYTE)(color.b * 255);
         m_frameBuffer[3 * _y_position * m_width + 3 * _x_position + 1] = (BYTE)(color.g * 255);
